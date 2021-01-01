@@ -1,4 +1,4 @@
-# Chairsight Subsidy Implementation
+# Subsidy Implementation
 This package implements the subsidy logic of the system. The subsidy logic
 is just to get the therapies (which we call in our models TherapyDecisionTree)
 ids for each region (group of teeth) or even indiviaul tooth in the mouth.
@@ -96,7 +96,7 @@ The logics uses `regions` of teeth, its `status` and `findings` to get `subsidie
 
 Two different kind of rules are applied:
 
-1. **By Region**: regions (several teeth) are analyzed and it return subsidies based on the findings/status of the region. This kind of rules can be found in: `rules/by_region.py` file.
-2. **By Tooth**: tooth is individually analyzed and it return subsidies based on the findings/status in the tooth. This kind of rules can be found in: `rules/by_tooth.py` file.
+1. **By Region**: regions (several teeth) are analyzed and it return subsidies based on the findings/status of the region. This kind of rules can be found in: `rules/by_region.php` file.
+2. **By Tooth**: tooth is individually analyzed and it return subsidies based on the findings/status in the tooth. This kind of rules can be found in: `rules/by_tooth.php` file.
 
-The logics are defined in the `rules` subpackage and it is well documented by this [spreadsheet](https://docs.google.com/spreadsheets/d/1o-K_w1XLOQPz5GdbAwu6v9E83oFjBmfsL6kTyCoK_Wc/edit#gid=120845960), but you might take a look in the code because the documentation there is very clear and the code itself is easily understandable.
+The logics are defined in the `rules` subpackage and it is well documented by this [spreadsheet](https://docs.google.com/spreadsheets/d/1d0TTtognbnqLW4FizV8ytLblLJZSyzzvjX21Xunvads/edit?ts=5fe030ea#gid=1505158426), but you might take a look in the code because the documentation there is very clear and the code itself is easily understandable.
