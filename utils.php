@@ -173,13 +173,13 @@ class TeethNumbersList($list) {
         groups = TeethNumbersList()
 
         if len(self) <= 2:
-            return self.sort()
+            return self->sort()
 
         for i, _ in enumerate(self):
             not_last_index = i != len(self) - 1
-            # Our goal is to see if the teeth are contiguous in the mouth or not.
-            # Notice that you can check if one tooth is side by side of other,
-            # by just checking the index absolute difference between them.
+            // Our goal is to see if the teeth are contiguous in the mouth or not.
+            // Notice that you can check if one tooth is side by side of other,
+            // by just checking the index absolute difference between them.
             contiguous_teeth = False
             if not_last_index:
                 contiguous_teeth = (

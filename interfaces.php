@@ -16,7 +16,7 @@ class RuleInterface {
         """*/
         self->schema = $schema;
         self->identified_subsidies = $identified_subsidies;
-        return self.run();
+        return self->run();
     }
 
     function run(self) {
@@ -24,7 +24,7 @@ class RuleInterface {
         Method that runs the rule code.
         """*/
         raise NotImplementedError(
-            f"You need to implement run method in {self.__class__}"
+            f"You need to implement run method in {self->__class__}"
         )
     }
 
@@ -34,13 +34,13 @@ class RuleInterface {
         the same base class. It simplify tests and equal checks.
         """*/
         if isinstance(other, RuleInterface) {
-            return self.__class__ == other.__class__;
+            return self->__class__ == other.__class__;
         }        
         return False;
     }
 
     function __str__(self) {
-        return self.__class__.__qualname__;
+        return self->__class__.__qualname__;
     }
 }
 
@@ -53,8 +53,8 @@ class SeparatedJawRuleCompleteInterface(RuleInterface) {
     function run(self) {
         // Method that actually runs the rule code.
 
-        $upper_jaw_result = self.upper_jaw();
-        $mandible_result = self.mandible();
+        $upper_jaw_result = self->upper_jaw();
+        $mandible_result = self->mandible();
         return $upper_jaw_result or $mandible_result;
     }
 
@@ -63,7 +63,7 @@ class SeparatedJawRuleCompleteInterface(RuleInterface) {
         If some subsidy is found, return the region where it was found.
         """*/
         raise NotImplementedError(
-            f"You need to implement upper_jaw method in {self.__class__}"
+            f"You need to implement upper_jaw method in {self->__class__}"
         )
     }
 
@@ -72,7 +72,7 @@ class SeparatedJawRuleCompleteInterface(RuleInterface) {
         If some subsidy is found, return the region where it was found.
         """*/
         raise NotImplementedError(
-            f"You need to implement mandible method in {self.__class__}"
+            f"You need to implement mandible method in {self->__class__}"
         )
     }
 }
@@ -81,7 +81,7 @@ class SeparatedJawRuleCompleteInterface(RuleInterface) {
 class SeparatedJawRuleSimpleInterface(SeparatedJawRuleCompleteInterface) {
     function execute_for(self, region) {
         raise NotImplementedError(
-            f"You need to implement execute_for in {self.__class__}"
+            f"You need to implement execute_for in {self->__class__}"
         )
     }
 
@@ -89,14 +89,14 @@ class SeparatedJawRuleSimpleInterface(SeparatedJawRuleCompleteInterface) {
         // from apps.therapies.subsidy.regions import Region
         require_once('regions.php')
 
-        return self.execute_for(Region.upper_jaw())
+        return self->execute_for(Region.upper_jaw())
     }
 
     function mandible(self) {
         // from apps.therapies.subsidy.regions import Region
         require_once('regions.php')
 
-        return self.execute_for(Region.mandible())
+        return self->execute_for(Region.mandible())
     }
 }
 
@@ -107,9 +107,9 @@ class RuleByToothInteface(RuleInterface) {
         Get the next tooth that have any condition in it and execute
         the rules for this one.
         """*/
-        for $tooth in self.schema.teeth {
+        for $tooth in self->schema.teeth {
             if $tooth.condition {
-                if self.execute_for($tooth) {
+                if self->execute_for($tooth) {
                     return True;
                 }
             }
@@ -118,7 +118,7 @@ class RuleByToothInteface(RuleInterface) {
 
     function execute_for(self, tooth) {
         raise NotImplementedError(
-            f"You need to implement execute_for in {self.__class__}"
+            f"You need to implement execute_for in {self->__class__}"
         )
     }
 }
@@ -132,7 +132,7 @@ class NeighborInterface {
 
     function is_neighbor_of(self, obj) {
         raise NotImplementedError(
-            f"You need to implement is_neighbor_of method in {self.__class__}"
+            f"You need to implement is_neighbor_of method in {self->__class__}"
         )
     }
 }
@@ -150,31 +150,31 @@ class RegionInterface {
         Return list of Tooth that composes the region.
         """*/
         raise NotImplementedError(
-            f"You need to implement teeth property in {self.__class__}"
+            f"You need to implement teeth property in {self->__class__}"
         )
     }
 
     @property
     function to_be_replaced(self) {
         raise NotImplementedError(
-            f"You need to implement to_be_replaced property in {self.__class__}"
+            f"You need to implement to_be_replaced property in {self->__class__}"
         )
     }
 
     @property
     function to_be_replaced_count(self) {
-        return len(self.to_be_replaced);
+        return len(self->to_be_replaced);
     }
 
     function __contains__(self, key) {
         raise NotImplementedError(
-            f"You need to implement __contains__ method in {self.__class__}"
+            f"You need to implement __contains__ method in {self->__class__}"
         )
     }
 
     function __len__(self) {
         raise NotImplementedError(
-            f"You need to implement __contains__ method in {self.__class__}"
+            f"You need to implement __contains__ method in {self->__class__}"
         )
     }
 }

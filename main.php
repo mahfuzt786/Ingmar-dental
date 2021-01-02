@@ -39,12 +39,12 @@
         $subsidies_identified_by_region = len($identified_subsidies)
 
         while evaluate_by_tooth($schema_by_tooth, $identified_subsidies) {
-            # We only remove regions of the subsidies identified by_tooth
-            for $subsidy in $identified_subsidies[$subsidies_identified_by_region:]:
-                // # Optional subsidies should not be considered to remove
-                // # the teeth, it will only be kept as a mark but we could
-                // # generate other subsidies in the same teeth related to it
-                if not $subsidy.get("optional", False):
+            // We only remove regions of the subsidies identified by_tooth
+            for $subsidy in $identified_subsidies[$subsidies_identified_by_region]
+                // // Optional subsidies should not be considered to remove
+                // // the teeth, it will only be kept as a mark but we could
+                // // generate other subsidies in the same teeth related to it
+                if not $subsidy.get("optional", False)
                     $schema_by_tooth.remove_findings($subsidy["region"])
         }
 

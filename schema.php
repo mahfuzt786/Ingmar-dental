@@ -2,40 +2,38 @@
 // Classes which defines the mouth schema, translating the real world
 // mouth to a virtual one that will be used for subsidy calculations.
 
-from apps.therapies.subsidy.utils import TOOTH_NUMBERS_ISO, subsidy_equivalent
-from apps.therapies.subsidy.regions import Region, RegionGroup
-from apps.therapies.subsidy.mixins import (
-    SchemaInterdentalGapHandlingMixin,
-    SchemaRegionIdentifierHandlingMixin,
-)
+require_once('utils.php');
+require_once('regions.php');
+require_once('mixins.php');
 
 
-class TeethSchema($SchemaInterdentalGapHandlingMixin, $SchemaRegionIdentifierHandlingMixin)
-{
-    """
+class TeethSchema {
+    public $SchemaInterdentalGapHandlingMixin;
+    public $SchemaRegionIdentifierHandlingMixin;
+    /*"""
     Represents a mouth with its teeth and the findings in each one.
-    """
+    """*/
 
-    function __construct__(self, $teeth) {
-        self.teeth = $teeth
-        for i in $teeth {
-            i.set_schema(self)
+    function __construct__($teeth) {
+        self->teeth = $teeth;
+        foreach ($teeth as $i) {
+            $i.set_schema(self);
         }
     }
 
-    function to_be_replaced_count(self, region=Region.whole_mouth()) {
+    function to_be_replaced_count($region=Region.whole_mouth()) {
         /*"""
         Count how many TBR teeth are in some specific region.
         """*/
-        return len(self.to_be_replaced(region=region));
+        return len(self->to_be_replaced($region=$region));
     }
 
-    function to_be_replaced(self, region=Region.whole_mouth()) {
+    function to_be_replaced($region=Region.whole_mouth()) {
         /*"""
         Return TBR teeth are in some specific region.
         """*/
         $to_be_replaced = [];
-        for $tooth in self.teeth {
+        for $tooth in self->teeth {
             if $tooth in region {
                 if $tooth.to_be_replaced {
                     $to_be_replaced.append(tooth);
@@ -53,7 +51,7 @@ class TeethSchema($SchemaInterdentalGapHandlingMixin, $SchemaRegionIdentifierHan
         (check the definitions page)
         """*/
         abutment = []
-        for region in self.interdental_gaps:
+        for region in self->interdental_gaps
             abutment.extend([region.first, region.last])
         return abutment;
     }
@@ -62,7 +60,7 @@ class TeethSchema($SchemaInterdentalGapHandlingMixin, $SchemaRegionIdentifierHan
         /*"""
         Remove findings/status of teeth.
         """*/
-        for tooth in self.teeth {
+        for tooth in self->teeth {
             if tooth in teeth {
                 tooth.status = None;
                 tooth.finding = None;
@@ -74,18 +72,18 @@ class TeethSchema($SchemaInterdentalGapHandlingMixin, $SchemaRegionIdentifierHan
         /*"""
         Return all teeth in some region.
         """*/
-        return [tooth for tooth in self.teeth if tooth in region];
+        return [tooth for tooth in self->teeth if tooth in region];
     }
 
     function get_tooth(self, tooth_number) {
         /*"""
         Given a tooth number, return the tooth object in the schema.
         """*/
-        return [i for i in self.teeth if i.number == tooth_number][0];
+        return [i for i in self->teeth if i.number == tooth_number][0];
     }
 
     function __str__(self) {
-        return str([tooth.condition for tooth in self.teeth]);
+        return str([tooth.condition for tooth in self->teeth]);
     }
 }
 
@@ -97,62 +95,75 @@ class Tooth {
     """*/
 
     function __init__(self, number, status, finding=None, schema=None) {
-        self.number = number
-        self.status = status
-        self.finding = finding
-        self.schema = schema
-        # RV are the same as covered insurance therapies
-        self.rv = set()
-        # Abutment Tooth is the first and last tooth of an interdental
-        # gap. There is three possibilities here. None, we have
-        # not calculated it, True it is an AT and False it is not an AT.
-        self.abutment_tooth = None
+        self->number = number
+        self->status = status
+        self->finding = finding
+        self->schema = schema
+        // RV are the same as covered insurance therapies
+        self->rv = set()
+        // Abutment Tooth is the first and last tooth of an interdental
+        // gap. There is three possibilities here. None, we have
+        // not calculated it, True it is an AT and False it is not an AT.
+        self->abutment_tooth = None
     }
 
-    function set_schema(self, schema):
-        self.schema = schema
+    function set_schema(self, schema) {
+        self->schema = schema
+    }
 
     @property
-    function right(self):
-        """
+    function right(self) {
+        /*"""
         Return the tooth that is just in the right of this object
-        """
-        if not self.schema:
-            raise ValueError("With no schema it is not possible to call right")
+        """*/
+        if not self->schema {
+            raise ValueError("With no schema it is not possible to call right");
+        }
 
-        for i, tooth in enumerate(self.schema.teeth):
-            if tooth == self:
-                if i < len(TOOTH_NUMBERS_ISO) - 1:
-                    return self.schema.teeth[i + 1]
+        for $i, $tooth in enumerate(self->schema.teeth) {
+            if $tooth == self {
+                if $i < len($TOOTH_NUMBERS_ISO) - 1 {
+                    return self->schema.teeth[i + 1];
+                }
                 return None
+            }
+        }
 
-        return ValueError("Tooth not found in this schema.")
+        return ValueError("Tooth not found in this schema.");
+    }
 
     @property
-    function left(self):
-        """
+    function left(self) {
+        /*"""
         Return the tooth that is just in the left of this object
-        """
-        if not self.schema:
+        """*/
+        if not self->schema {
             raise ValueError("With no schema it is not possible to call left")
+        }
 
-        for i, tooth in enumerate(self.schema.teeth):
-            if tooth == self:
-                if i == 0:
-                    return None
-                return self.schema.teeth[i - 1]
+        for i, tooth in enumerate(self->schema.teeth) {
+            if tooth == self {
+                if i == 0 {
+                    return None;
+                }
+                return self->schema.teeth[i - 1];
+            }
+        }
 
         return ValueError("Tooth not found in this schema.")
+    }
 
     @property
-    function condition(self):
-        if not self.finding:
-            return self.status
-        return self.finding
+    function condition(self) {
+        if not self->finding {
+            return self->status;
+        }
+        return self->finding;
+    }
 
     @property
-    function to_be_replaced(self):
-        """
+    function to_be_replaced(self) {
+        /*"""
         To Be Replaced. This can be:
             a) f
             b) x
@@ -160,63 +171,73 @@ class Tooth {
             d) ew
             e) sw
             f) bw
-        """
-        # bw added because of Issue #358
-        if self.condition in ["f", "x", "ew", "sw", "fi", "bw"]:
+        """*/
+        // bw added because of Issue #358
+        if self->condition in ["f", "x", "ew", "sw", "fi", "bw"]
             return True
 
-        if self.condition == "b":
-            # If the teeth near to this one is a TBR
-            if (self.left and self.left.to_be_treated) or (
-                self.right and self.right.to_be_treated
-            ):
-                return True
+        if self->condition == "b" {
+            // If the teeth near to this one is a TBR
+            if (self->left and self->left.to_be_treated) or (
+                self->right and self->right.to_be_treated
+            ) {
+                return True;
+            }
 
-            # If the teeth near to this one is an "x"
-            if (self.left and self.left.condition == "x") or (
-                self.right and self.right.condition == "x"
-            ):
-                return True
+            // If the teeth near to this one is an "x"
+            if (self->left and self->left.condition == "x") or (
+                self->right and self->right.condition == "x"
+            ) {
+                return True;
+            }
 
-            # If the teeth near to this one is also a "b" (bridge)
-            # and the last "b" is at the side of a TBT
-            # Check from the left side
-            left = self.left
+            // If the teeth near to this one is also a "b" (bridge)
+            // and the last "b" is at the side of a TBT
+            // Check from the left side
+            left = self->left;
 
-            while left:
-                if left.condition == "b":
+            while left {
+                if left.condition == "b" {
                     left = left.left
-                elif left.to_be_treated:
+                elseif left.to_be_treated
                     return True
-                else:
-                    break
+                else
+                    break;
+                }
+            }
 
-            # Check from the right side
-            right = self.right
+            // Check from the right side
+            right = self->right;
 
-            while right:
-                if right.condition == "b":
+            while right {
+                if right.condition == "b"
                     right = right.right
-                elif right.to_be_treated:
+                elseif right.to_be_treated
                     return True
-                else:
+                else {
                     break
+                }
+            }
+        }
 
-        return False
+        return False;
+    }
 
     @property
-    function to_be_treated(self):
-        """
+    function to_be_treated(self) {
+        /*"""
         To Be Treated are existing tooth with or without findings:
             ww/kw/tw/pw/rw.
-        """
-        if self.condition in ["ww", "kw", "tw", "pw", "rw", "ur"]:
-            return True
-        return False
+        """*/
+        if self->condition in ["ww", "kw", "tw", "pw", "rw", "ur"] {
+            return True;
+        }
+        return False;
+    }
 
     @property
-    function potential_h(self):
-        """
+    function potential_h(self) {
+        /*"""
         H is an Retention element planned by dentists to keep it "safe"
         positioned. Hs belong to existing teeth - could be any tooth existing.
 
@@ -225,18 +246,23 @@ class Tooth {
                teeth which are either okay or TBT)
              2) To be an help to another tooth, there must be a `TBR` next
                to it.
-        """
-        if self.to_be_replaced is False:
-            # Ok or TBT tooth
-            if self.to_be_treated or self.condition is None:
-                # Check for a near TBR tooth
-                if self.left and self.left.to_be_replaced:
-                    return True
+        """*/
+        if self->to_be_replaced is False {
+            // Ok or TBT tooth
+            if self->to_be_treated or self->condition is None {
+                // Check for a near TBR tooth
+                if self->left and self->left.to_be_replaced {
+                    return True;
+                }
 
-                if self.right and self.right.to_be_replaced:
+                if self->right and self->right.to_be_replaced {
                     return True
+                }
+            }
+        }
 
-        return False
+        return False;
+    }
 
     @property
     function potential_t(self) {
@@ -245,25 +271,26 @@ class Tooth {
         first tooth after a free end (if all teeths to the left or right = TBR)
         and the tooth itself is not a TBR.
         """*/
-        if self.to_be_replaced:
-            return False
+        if self->to_be_replaced {
+            return False;
+        }
 
-        # Upper jaw
-        if self in Region(15, 13):
-            if Region(18, 16, self.schema).to_be_replaced_count == 3:
+        // Upper jaw
+        if self in Region(15, 13)
+            if Region(18, 16, self->schema).to_be_replaced_count == 3
                 return True
 
-        if self in Region(23, 25):
-            if Region(26, 28, self.schema).to_be_replaced_count == 3:
+        if self in Region(23, 25)
+            if Region(26, 28, self->schema).to_be_replaced_count == 3
                 return True
 
-        # Mandible
-        if self in Region(43, 45):
-            if Region(46, 48, self.schema).to_be_replaced_count == 3:
+        // Mandible
+        if self in Region(43, 45)
+            if Region(46, 48, self->schema).to_be_replaced_count == 3
                 return True
 
-        if self in Region(35, 33):
-            if Region(38, 36, self.schema).to_be_replaced_count == 3:
+        if self in Region(35, 33)
+            if Region(38, 36, self->schema).to_be_replaced_count == 3
                 return True
 
         return False;
@@ -299,38 +326,38 @@ class Tooth {
          TBR   |    3.1+3.x     | Not possible|
          TBR   |      4.x       |     False   | Not plannable
         """*/
-        if self.tbt_or_tbr_subsidy_based(subsidy_group) == "tbt" {
-            if subsidy_equivalent(subsidy_group, "1.x"):
+        if self->tbt_or_tbr_subsidy_based(subsidy_group) == "tbt" {
+            if subsidy_equivalent(subsidy_group, "1.x")
                 return True
-            if subsidy_equivalent(subsidy_group, "2.x"):
+            if subsidy_equivalent(subsidy_group, "2.x")
                 return True
-            if subsidy_equivalent(subsidy_group, "2.x+2.x"):
+            if subsidy_equivalent(subsidy_group, "2.x+2.x")
                 return True
-            if subsidy_equivalent(subsidy_group, "3.1"):
+            if subsidy_equivalent(subsidy_group, "3.1")
                 return False
-            if subsidy_equivalent(subsidy_group, "3.1+1.x"):
+            if subsidy_equivalent(subsidy_group, "3.1+1.x")
                 return True
-            if subsidy_equivalent(subsidy_group, "3.1+2.x"):
+            if subsidy_equivalent(subsidy_group, "3.1+2.x")
                 return True
-            if subsidy_equivalent(subsidy_group, "3.1+3.x"):
+            if subsidy_equivalent(subsidy_group, "3.1+3.x")
                 return True
             if subsidy_equivalent(subsidy_group, "4.x") {
                 return True
             }
         }
         else {
-            if subsidy_equivalent(subsidy_group, "2.x"):
+            if subsidy_equivalent(subsidy_group, "2.x")
                 return True
-            if subsidy_equivalent(subsidy_group, "3.1"):
-                if self in RegionGroup.x8_region():
+            if subsidy_equivalent(subsidy_group, "3.1")
+                if self in RegionGroup.x8_region()
                     return None
                 return False
-            if subsidy_equivalent(subsidy_group, "3.1+2.x"):
-                if self in RegionGroup.x8_region():
+            if subsidy_equivalent(subsidy_group, "3.1+2.x")
+                if self in RegionGroup.x8_region()
                     return None
                 return True
-            if subsidy_equivalent(subsidy_group, "4.x"):
-                if self in RegionGroup.x8_region():
+            if subsidy_equivalent(subsidy_group, "4.x")
+                if self in RegionGroup.x8_region()
                     return None
                 return False
         }
@@ -359,7 +386,7 @@ class Tooth {
         }
 
         if subsidy_equivalent(main_subsidy, "2.x") {
-            if self.to_be_replaced:
+            if self->to_be_replaced
                 return "tbr";
             return "tbt";
         }
@@ -370,12 +397,12 @@ class Tooth {
             if self in RegionGroup.x8_region() {
                 // X8 can only be TBT, if it is TBR is the only case we will
                 // return None
-                if self.to_be_replaced:
+                if self->to_be_replaced
                     return None
                 return "tbt"
             }
 
-            if self.to_be_replaced {
+            if self->to_be_replaced {
                 return "tbr";
             }
             return "tbt";
@@ -384,13 +411,13 @@ class Tooth {
 
     function __eq__(self, other) {
         /*"""Make comparison between tooth possible"""*/
-        if isinstance(other, Tooth):
-            return self.number == other.number
+        if isinstance(other, Tooth)
+            return self->number == other.number
         return False
     }
 
     function __str__(self) {
-        return str(self.number);
+        return str(self->number);
     }
 
     __repr__ = __str__

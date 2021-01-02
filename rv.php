@@ -58,7 +58,7 @@ function rv_subsidy_3x($subsidy) {
     // thats the first tooth after a free end (if all teeths to the left or right = TBR
     // +V: Veneer grant (if visible area + either K, B or T)
     // """
-    for $tooth in $subsidy["region"]:
+    for $tooth in $subsidy["region"] {
         if $subsidy["subsidy"] in ["2.1", "2.2"] {
             if $tooth.to_be_replaced
                 $tooth.rv.add("B")
@@ -67,19 +67,21 @@ function rv_subsidy_3x($subsidy) {
                 $tooth.rv.add("K")
         }
 
-        if $tooth.to_be_replaced:
+        if $tooth.to_be_replaced
             $tooth.rv.add("E")
 
-        if $tooth.potential_h:
+        if $tooth.potential_h
             $tooth.rv.add("H")
 
-        if $tooth.potential_t:
+        if $tooth.potential_t
             $tooth.rv.add("T")
 
         if $tooth in RegionGroup.visible_area() and {"K", "B", "T"}.intersection(
             set($tooth.rv)
-        )
-            $tooth.rv.add("V")
+        ) {
+            $tooth.rv.add("V");
+        }
+    }
 
     return $subsidy
 }
@@ -117,14 +119,15 @@ function rv_subsidy_1x($subsidy) {
     // +V: If 1.3 / visible area
     // OK teeth get no RV info
     // """
-    // # Normally we have only one tooth in 1.X subsidy,
-    // # I just kept the for to follow a pattern
+    // // Normally we have only one tooth in 1.X subsidy,
+    // // I just kept the for to follow a pattern
     for $tooth in $subsidy["region"] {
-        if $tooth.to_be_treated:
+        if $tooth.to_be_treated
             $tooth.rv.add("K")
 
-        if $subsidy["subsidy"] == "1.2":
-            $tooth.rv.add("P")
+        if $subsidy["subsidy"] == "1.2" {
+            $tooth.rv.add("P");
+        }
 
         if ($subsidy["subsidy"] == "1.3" or $tooth in RegionGroup.visible_area()) {
             tooth.rv.add("V");
