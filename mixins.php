@@ -19,7 +19,7 @@ class SchemaInterdentalGapHandlingMixin {
         a region only with teeth that can be used for an interdental gap (that is,
         teeth only in one of mouth sides)
         """*/
-        $not_to_be_replaced = [$i for $i in self->teeth if not $i.to_be_replaced];
+        $not_to_be_replaced = [$i for $i in $this->teeth if not $i.to_be_replaced];
         $interdental_gaps = [];
 
         for $to_be_treated_left in $not_to_be_replaced {
@@ -40,25 +40,25 @@ class SchemaInterdentalGapHandlingMixin {
         return $interdental_gaps;
     }
 
-    function all_interdental_gaps(self, region=None) {
+    function all_interdental_gaps(self, region=NULL) {
         /*"""
         Return the region of all interdental gaps in order. The first one
         will be the main one for the region.
         """*/
         // For the whole mouth you need to split in the two parts, once there
         // is no gap between them.
-        if region is None {
+        if region is NULL {
             interdental_gaps = []
             interdental_gaps.extend(
-                self->_generate_interdental_gaps(Region.upper_jaw())
+                $this->_generate_interdental_gaps(Region.upper_jaw())
             )
             interdental_gaps.extend(
-                self->_generate_interdental_gaps(Region.mandible())
+                $this->_generate_interdental_gaps(Region.mandible())
             )
             return interdental_gaps
         }
 
-        return self->_generate_interdental_gaps(region);
+        return $this->_generate_interdental_gaps(region);
     }
 
     function main_interdental_gap($region) {
@@ -69,11 +69,11 @@ class SchemaInterdentalGapHandlingMixin {
         This concept was changed in 25/01/2019. Now the main interdental
         gap is the same as the biggest one.
         """*/
-        return self->biggest_interdental_gap($region);
+        return $this->biggest_interdental_gap($region);
     }
 
     function biggest_interdental_gap(self, region=Region.whole_mouth()) {
-        $interdental_gaps = self->all_interdental_gaps($region);
+        $interdental_gaps = $this->all_interdental_gaps($region);
         if interdental_gaps {
             return max(interdental_gaps, key=lambda item: len(item));
         }
@@ -84,7 +84,7 @@ class SchemaInterdentalGapHandlingMixin {
         Check if there is an interdental gap in some specific region. If there are,
         it will return the first found.
         """*/
-        $interdental_gaps = self->all_interdental_gaps();
+        $interdental_gaps = $this->all_interdental_gaps();
         for interdental_gap in interdental_gaps {
             if interdental_gap in region {
                 return interdental_gap;
@@ -98,7 +98,7 @@ class SchemaInterdentalGapHandlingMixin {
         it will return the all that we found.
         """*/
         $gaps_in_region = [];
-        $interdental_gaps = self->all_interdental_gaps();
+        $interdental_gaps = $this->all_interdental_gaps();
         for interdental_gap in interdental_gaps {
             if $interdental_gap in region {
                 $gaps_in_region.append($interdental_gap);
@@ -111,11 +111,11 @@ class SchemaInterdentalGapHandlingMixin {
         /*"""
         Check if there is an interdental gap with some specific TBR count.
         """*/
-        $interdental_gaps = self->all_interdental_gaps();
+        $interdental_gaps = $this->all_interdental_gaps();
 
         for $interdental_gap in $interdental_gaps {
             if $interdental_gap in $region {
-                if self->to_be_replaced_count($region=$interdental_gap) == $count {
+                if $this->to_be_replaced_count($region=$interdental_gap) == $count {
                     return $interdental_gap;
                 }
             }
@@ -126,14 +126,14 @@ class SchemaInterdentalGapHandlingMixin {
         /*"""
         Return the first neighboring gap clockwise for the object informed
         """*/
-        for $interdental_gap in self->all_interdental_gaps() {
+        for $interdental_gap in $this->all_interdental_gaps() {
             if $interdental_gap.is_neighbor_of($obj) {
                 if $interdental_gap in $region {
                     return $interdental_gap;
                 }
             }
         }
-        return None;
+        return NULL;
     }
 }
 
@@ -158,7 +158,7 @@ class SchemaRegionIdentifierHandlingMixin {
             // Issue #357: free end must not surpass X6, that is,
             // it should not have a TBR X3 ahead
             if Region(13, 13, self).to_be_replaced
-                return None
+                return NULL
             return $full_free_end
 
         if four_free_end.to_be_replaced_count == 4
@@ -168,7 +168,7 @@ class SchemaRegionIdentifierHandlingMixin {
         if tree_free_end.to_be_replaced_count == 3
             return $tree_free_end
 
-        return None
+        return NULL
     }
 
     @property
@@ -187,7 +187,7 @@ class SchemaRegionIdentifierHandlingMixin {
             // Issue #357: free end must not surpass X6, that is,
             // it should not have a TBR X3 ahead
             if Region(23, 23, self).to_be_replaced
-                return None
+                return NULL
             return full_free_end
 
         if four_free_end.to_be_replaced_count == 4
@@ -198,7 +198,7 @@ class SchemaRegionIdentifierHandlingMixin {
         if tree_free_end.to_be_replaced_count == 3
             return tree_free_end
 
-        return None
+        return NULL
     }
 
     // Mandible
@@ -215,7 +215,7 @@ class SchemaRegionIdentifierHandlingMixin {
             // Issue #357: free end must not surpass X6, that is,
             // it should not have a TBR X3 ahead
             if Region(43, 43, self).to_be_replaced
-                return None
+                return NULL
             return $full_free_end
 
         if $four_free_end.to_be_replaced_count == 4
@@ -225,7 +225,7 @@ class SchemaRegionIdentifierHandlingMixin {
         if $tree_free_end.to_be_replaced_count == 3
             return $tree_free_end
 
-        return None;
+        return NULL;
     }
 
     @property
@@ -241,7 +241,7 @@ class SchemaRegionIdentifierHandlingMixin {
             // Issue #357: free end must not surpass X6, that is,
             // it should not have a TBR X3 ahead
             if Region(33, 33, self).to_be_replaced
-                return None
+                return NULL
             return full_free_end
 
         if $four_free_end.to_be_replaced_count == 4 {
@@ -253,6 +253,6 @@ class SchemaRegionIdentifierHandlingMixin {
             return $tree_free_end;
         }
 
-        return None;
+        return NULL;
     }
 }

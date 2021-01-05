@@ -15,7 +15,7 @@ class TeethSchema {
     """*/
 
     function __construct__($teeth) {
-        self->teeth = $teeth;
+        $this->teeth = $teeth;
         foreach ($teeth as $i) {
             $i.set_schema(self);
         }
@@ -25,7 +25,7 @@ class TeethSchema {
         /*"""
         Count how many TBR teeth are in some specific region.
         """*/
-        return len(self->to_be_replaced($region=$region));
+        return len($this->to_be_replaced($region=$region));
     }
 
     function to_be_replaced($region=Region.whole_mouth()) {
@@ -33,25 +33,25 @@ class TeethSchema {
         Return TBR teeth are in some specific region.
         """*/
         $to_be_replaced = [];
-        for $tooth in self->teeth {
-            if $tooth in region {
-                if $tooth.to_be_replaced {
-                    $to_be_replaced.append(tooth);
+        foreach ($this->teeth as $tooth) {
+            if (in_array($tooth, $region)) {
+                if ($tooth->to_be_replaced) {
+                    array_push($to_be_replaced, $tooth);
                 }
             }
         }
-        return to_be_replaced;
+        return $to_be_replaced;
     }
 
-    function get_abutment_teeth(self) {
+    function get_abutment_teeth() {
         /*"""
         Return a list of teeth that are abutment.
         Abutment tooth: Its the tooth next to a gap.
         The A is the left one, B is the one on the other side
         (check the definitions page)
         """*/
-        abutment = []
-        for region in self->interdental_gaps
+        $abutment = [];
+        for region in $this->interdental_gaps
             abutment.extend([region.first, region.last])
         return abutment;
     }
@@ -60,10 +60,10 @@ class TeethSchema {
         /*"""
         Remove findings/status of teeth.
         """*/
-        for tooth in self->teeth {
+        for tooth in $this->teeth {
             if tooth in teeth {
-                tooth.status = None;
-                tooth.finding = None;
+                tooth.status = NULL;
+                tooth.finding = NULL;
             }
         }
     }
@@ -72,18 +72,18 @@ class TeethSchema {
         /*"""
         Return all teeth in some region.
         """*/
-        return [tooth for tooth in self->teeth if tooth in region];
+        return [tooth for tooth in $this->teeth if tooth in region];
     }
 
     function get_tooth(self, tooth_number) {
         /*"""
         Given a tooth number, return the tooth object in the schema.
         """*/
-        return [i for i in self->teeth if i.number == tooth_number][0];
+        return [i for i in $this->teeth if i.number == tooth_number][0];
     }
 
     function __str__(self) {
-        return str([tooth.condition for tooth in self->teeth]);
+        return str([tooth.condition for tooth in $this->teeth]);
     }
 }
 
@@ -94,21 +94,21 @@ class Tooth {
     and right side tooth.
     """*/
 
-    function __init__(self, number, status, finding=None, schema=None) {
-        self->number = number
-        self->status = status
-        self->finding = finding
-        self->schema = schema
+    function __init__(self, number, status, finding=NULL, schema=NULL) {
+        $this->number = number
+        $this->status = status
+        $this->finding = finding
+        $this->schema = schema
         // RV are the same as covered insurance therapies
-        self->rv = set()
+        $this->rv = set()
         // Abutment Tooth is the first and last tooth of an interdental
-        // gap. There is three possibilities here. None, we have
+        // gap. There is three possibilities here. NULL, we have
         // not calculated it, True it is an AT and False it is not an AT.
-        self->abutment_tooth = None
+        $this->abutment_tooth = NULL
     }
 
-    function set_schema(self, schema) {
-        self->schema = schema
+    function set_schema($schema) {
+        $this->schema = $schema;
     }
 
     @property
@@ -116,16 +116,16 @@ class Tooth {
         /*"""
         Return the tooth that is just in the right of this object
         """*/
-        if not self->schema {
+        if not $this->schema {
             raise ValueError("With no schema it is not possible to call right");
         }
 
-        for $i, $tooth in enumerate(self->schema.teeth) {
+        for $i, $tooth in enumerate($this->schema.teeth) {
             if $tooth == self {
                 if $i < len($TOOTH_NUMBERS_ISO) - 1 {
-                    return self->schema.teeth[i + 1];
+                    return $this->schema.teeth[i + 1];
                 }
-                return None
+                return NULL
             }
         }
 
@@ -137,16 +137,16 @@ class Tooth {
         /*"""
         Return the tooth that is just in the left of this object
         """*/
-        if not self->schema {
+        if not $this->schema {
             raise ValueError("With no schema it is not possible to call left")
         }
 
-        for i, tooth in enumerate(self->schema.teeth) {
+        for i, tooth in enumerate($this->schema.teeth) {
             if tooth == self {
                 if i == 0 {
-                    return None;
+                    return NULL;
                 }
-                return self->schema.teeth[i - 1];
+                return $this->schema.teeth[i - 1];
             }
         }
 
@@ -155,10 +155,10 @@ class Tooth {
 
     @property
     function condition(self) {
-        if not self->finding {
-            return self->status;
+        if not $this->finding {
+            return $this->status;
         }
-        return self->finding;
+        return $this->finding;
     }
 
     @property
@@ -173,20 +173,20 @@ class Tooth {
             f) bw
         """*/
         // bw added because of Issue #358
-        if self->condition in ["f", "x", "ew", "sw", "fi", "bw"]
+        if $this->condition in ["f", "x", "ew", "sw", "fi", "bw"]
             return True
 
-        if self->condition == "b" {
+        if $this->condition == "b" {
             // If the teeth near to this one is a TBR
-            if (self->left and self->left.to_be_treated) or (
-                self->right and self->right.to_be_treated
+            if ($this->left and $this->left.to_be_treated) or (
+                $this->right and $this->right.to_be_treated
             ) {
                 return True;
             }
 
             // If the teeth near to this one is an "x"
-            if (self->left and self->left.condition == "x") or (
-                self->right and self->right.condition == "x"
+            if ($this->left and $this->left.condition == "x") or (
+                $this->right and $this->right.condition == "x"
             ) {
                 return True;
             }
@@ -194,7 +194,7 @@ class Tooth {
             // If the teeth near to this one is also a "b" (bridge)
             // and the last "b" is at the side of a TBT
             // Check from the left side
-            left = self->left;
+            left = $this->left;
 
             while left {
                 if left.condition == "b" {
@@ -207,7 +207,7 @@ class Tooth {
             }
 
             // Check from the right side
-            right = self->right;
+            right = $this->right;
 
             while right {
                 if right.condition == "b"
@@ -229,7 +229,7 @@ class Tooth {
         To Be Treated are existing tooth with or without findings:
             ww/kw/tw/pw/rw.
         """*/
-        if self->condition in ["ww", "kw", "tw", "pw", "rw", "ur"] {
+        if $this->condition in ["ww", "kw", "tw", "pw", "rw", "ur"] {
             return True;
         }
         return False;
@@ -247,15 +247,15 @@ class Tooth {
              2) To be an help to another tooth, there must be a `TBR` next
                to it.
         """*/
-        if self->to_be_replaced is False {
+        if $this->to_be_replaced is False {
             // Ok or TBT tooth
-            if self->to_be_treated or self->condition is None {
+            if $this->to_be_treated or $this->condition is NULL {
                 // Check for a near TBR tooth
-                if self->left and self->left.to_be_replaced {
+                if $this->left and $this->left.to_be_replaced {
                     return True;
                 }
 
-                if self->right and self->right.to_be_replaced {
+                if $this->right and $this->right.to_be_replaced {
                     return True
                 }
             }
@@ -271,26 +271,26 @@ class Tooth {
         first tooth after a free end (if all teeths to the left or right = TBR)
         and the tooth itself is not a TBR.
         """*/
-        if self->to_be_replaced {
+        if $this->to_be_replaced {
             return False;
         }
 
         // Upper jaw
         if self in Region(15, 13)
-            if Region(18, 16, self->schema).to_be_replaced_count == 3
+            if Region(18, 16, $this->schema).to_be_replaced_count == 3
                 return True
 
         if self in Region(23, 25)
-            if Region(26, 28, self->schema).to_be_replaced_count == 3
+            if Region(26, 28, $this->schema).to_be_replaced_count == 3
                 return True
 
         // Mandible
         if self in Region(43, 45)
-            if Region(46, 48, self->schema).to_be_replaced_count == 3
+            if Region(46, 48, $this->schema).to_be_replaced_count == 3
                 return True
 
         if self in Region(35, 33)
-            if Region(38, 36, self->schema).to_be_replaced_count == 3
+            if Region(38, 36, $this->schema).to_be_replaced_count == 3
                 return True
 
         return False;
@@ -303,7 +303,7 @@ class Tooth {
 
             1) True: mandatory plan
             2) False: it is not mandatory
-            3) None: should not be planned, plan is impossible.
+            3) NULL: should not be planned, plan is impossible.
 
         To return the mandatory information we will follow this table:
 
@@ -326,7 +326,7 @@ class Tooth {
          TBR   |    3.1+3.x     | Not possible|
          TBR   |      4.x       |     False   | Not plannable
         """*/
-        if self->tbt_or_tbr_subsidy_based(subsidy_group) == "tbt" {
+        if $this->tbt_or_tbr_subsidy_based(subsidy_group) == "tbt" {
             if subsidy_equivalent(subsidy_group, "1.x")
                 return True
             if subsidy_equivalent(subsidy_group, "2.x")
@@ -350,15 +350,15 @@ class Tooth {
                 return True
             if subsidy_equivalent(subsidy_group, "3.1")
                 if self in RegionGroup.x8_region()
-                    return None
+                    return NULL
                 return False
             if subsidy_equivalent(subsidy_group, "3.1+2.x")
                 if self in RegionGroup.x8_region()
-                    return None
+                    return NULL
                 return True
             if subsidy_equivalent(subsidy_group, "4.x")
                 if self in RegionGroup.x8_region()
-                    return None
+                    return NULL
                 return False
         }
         return False;
@@ -386,7 +386,7 @@ class Tooth {
         }
 
         if subsidy_equivalent(main_subsidy, "2.x") {
-            if self->to_be_replaced
+            if $this->to_be_replaced
                 return "tbr";
             return "tbt";
         }
@@ -396,13 +396,13 @@ class Tooth {
         ) {
             if self in RegionGroup.x8_region() {
                 // X8 can only be TBT, if it is TBR is the only case we will
-                // return None
-                if self->to_be_replaced
-                    return None
+                // return NULL
+                if $this->to_be_replaced
+                    return NULL
                 return "tbt"
             }
 
-            if self->to_be_replaced {
+            if $this->to_be_replaced {
                 return "tbr";
             }
             return "tbt";
@@ -412,12 +412,12 @@ class Tooth {
     function __eq__(self, other) {
         /*"""Make comparison between tooth possible"""*/
         if isinstance(other, Tooth)
-            return self->number == other.number
+            return $this->number == other.number
         return False
     }
 
     function __str__(self) {
-        return str(self->number);
+        return str($this->number);
     }
 
     __repr__ = __str__

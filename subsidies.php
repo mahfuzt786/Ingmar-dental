@@ -6,24 +6,31 @@ All aspects related to subsidies return are hosted here.
 // from copy import deepcopy
 
 // from apps.therapies.subsidy.utils import TeethNumbersList
+require_once('utils.php');
 
 
-class SubsidiesList(list) {
+class SubsidiesList {
     /*"""
     The subsidies list that is returned by the main function, returns this object.
     It have some simple and utils methods to simplify identifying/getting
     information inside subsidy list.
     """*/
 
-    function exists(self, subsidy_code_startswith=None, region=None) {
+    public $list;
+
+    function __construct($list) {
+    	$this->list = $list;
+  	}
+
+    function exists($subsidy_code_startswith=NULL, $region=NULL) {
         /*"""
         Check if there is some subsidy code filtering by something user wants.
         """*/
-        for subsidy in self {
-            if subsidy["subsidy"].startswith(subsidy_code_startswith) {
-                if region is not None {
-                    if subsidy["region"] in region {
-                        return True
+        foreach ($this->list as $subsidy) {
+            if ($subsidy["subsidy"].startswith($subsidy_code_startswith)) {
+                if ($region !== NULL) {
+                    if (in_array($subsidy["region"], $region)) {
+                        return True;
                     }
                 }
                 else {
@@ -31,18 +38,18 @@ class SubsidiesList(list) {
                 }
             }
         }
-        return False
+        return False;
     }
 
-    function teeth(self, subsidy_code_startswith=[], subsidy_code=[]) {
+    function teeth($subsidy_code_startswith=[], $subsidy_code=[]) {
         /*"""
         Get teeth from subsidies filtering by something user wants.
         """*/
-        teeth_with_code = []
+        $teeth_with_code = [];
 
         // Standardize to lists to simplify interface use
         if not isinstance(subsidy_code_startswith, list)
-            subsidy_code_startswith = [subsidy_code_startswith]
+            $subsidy_code_startswith = [$subsidy_code_startswith];
 
         if not isinstance(subsidy_code, list)
             subsidy_code = [subsidy_code]
@@ -77,7 +84,7 @@ class SubsidiesList(list) {
         software, as a standard python object.
         """*/
         item = {
-            "subsidy": None,
+            "subsidy": NULL,
             "regions": [],
             "count": 0,
             "applied_rules": [],
@@ -89,7 +96,7 @@ class SubsidiesList(list) {
             if not include_optionals and subsidy.get("optional", False)
                 continue
 
-            result = subsidy_groups.get(subsidy["subsidy"], deepcopy(item))
+            result = subsidy_groups.get(subsidy["subsidy"], deep_copy(item))
             subsidy_groups[subsidy["subsidy"]] = result
             result["subsidy"] = subsidy["subsidy"]
             result["applied_rules"].append(subsidy["applied_rule"])
@@ -131,7 +138,7 @@ class SubsidiesList(list) {
                 if isinstance(rule, types.FunctionType)
                     // Get a good representation for the rules that are functions
                     rules_output.add(rule.__qualname__)
-                else:
+                else
                     rules_output.add(str(rule))
             subsidy_group["applied_rules"] = ",".join(rules_output)
 
@@ -143,17 +150,17 @@ class SubsidiesList(list) {
         Return the subsidy groups in the way it is expected by the other
         software, all the subsidy regions being strings.
         """*/
-        subsidy_groups = self->group(include_optionals=include_optionals)
+        subsidy_groups = $this->group(include_optionals=include_optionals)
 
         for key, value in subsidy_groups.items()
-            subsidy_groups[key]["regions"] = self->_region_to_str(
+            subsidy_groups[key]["regions"] = $this->_region_to_str(
                 value["regions"]
             )
         return subsidy_groups;
     }
 
     function subsidies(self) {
-        return {i for i in self->output()}
+        return {i for i in $this->output()}
     }
 
     function rvs(self, include_optionals=False) {

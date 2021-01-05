@@ -1,0 +1,5 @@
+{
+    "require": {
+        "myclabs/deep-copy": "^1.10"
+    }
+}

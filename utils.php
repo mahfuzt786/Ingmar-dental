@@ -5,26 +5,41 @@ require_once('constants.php');
 require_once('schema.php');
 
 
+function startswith ($string, $startString) 
+{ 
+    $len = strlen($startString); 
+    return (substr($string, 0, $len) === $startString); 
+}
+
+
+function endswith($string, $endString) { 
+    $len = strlen($endString); 
+    if ($len == 0) { 
+        return true; 
+    } 
+    return (substr($string, -$len) === $endString); 
+}
+
+
 function tuple_to_schema($data) {
     // Converts a tuple with findings and status in order of teeth numbers
     // to a schema.
 
     // from apps.therapies.subsidy.schema import Tooth, TeethSchema
 
-    if isinstance($data, (list, tuple)) {
-        raise ValueError("Inform a tuple or a list as data parameter");
+    if (is_array($data)) {
+        throw new Exception("Error Processing as data parameter");
+        // raise ValueError("Inform a tuple or a list as data parameter");
     }
 
-    if len($data) !== 32 {
-        raise ValueError(
-            "Each one of the 32 teeth should be represented in the tuple"
-        )
+    if (len($data) !== 32) {
+        throw new Exception("Each one of the 32 teeth should be represented in the tuple");
     }
 
     return TeethSchema(
         [
             Tooth($number, $status)
-            for $number, $status in zip($TOOTH_NUMBERS_ISO, $data)
+            foreach (array_map(NULL, $TOOTH_NUMBERS_ISO, $data) as $number => $status)
         ]
     )
 }
@@ -53,7 +68,7 @@ class TeethNumbersList($list) {
     such as allowing only valid numbers in it.
     """*/
 
-    $max_length = len($TOOTH_NUMBERS_ISO);
+    public $max_length = len($TOOTH_NUMBERS_ISO);
 
     public static function previous($number) {
         /*"""
@@ -62,7 +77,7 @@ class TeethNumbersList($list) {
         $number_index = $TOOTH_NUMBERS_ISO.index($number)
 
         if ($number_index == 0)
-            return None;
+            return NULL;
         return $TOOTH_NUMBERS_ISO[$number_index - 1];
     }
 
@@ -73,7 +88,7 @@ class TeethNumbersList($list) {
         $number_index = $TOOTH_NUMBERS_ISO.index($number)
 
         if ($number_index == len($TOOTH_NUMBERS_ISO) - 1)
-            return None;
+            return NULL;
 
         return $TOOTH_NUMBERS_ISO[$number_index + 1];
     }
@@ -132,7 +147,7 @@ class TeethNumbersList($list) {
         """*/
 
         function key(value) {
-            if isinstance(value, str):
+            if isinstance(value, str)
                 // When it is applied to the whole mouth, we just order
                 // OK (upper jaw) first of UK (mandible)
                 if ($value in ["OK", "UK"]) {
@@ -169,19 +184,19 @@ class TeethNumbersList($list) {
         Teeth that are not part of any group are just returned alone.
         """*/
         teeth_in_group = 1
-        start, end = None, None
+        start, end = NULL, NULL
         groups = TeethNumbersList()
 
-        if len(self) <= 2:
-            return self->sort()
+        if len(self) <= 2
+            return $this->sort()
 
-        for i, _ in enumerate(self):
+        for i, _ in enumerate(self)
             not_last_index = i != len(self) - 1
             // Our goal is to see if the teeth are contiguous in the mouth or not.
             // Notice that you can check if one tooth is side by side of other,
             // by just checking the index absolute difference between them.
             contiguous_teeth = False
-            if not_last_index:
+            if not_last_index
                 contiguous_teeth = (
                     abs(
                         TOOTH_NUMBERS_ISO.index(self[i])
@@ -208,7 +223,7 @@ class TeethNumbersList($list) {
                     $groups.extend(self[$i + 1 - $teeth_in_group : $i + 1]);
                 }
 
-                $start, $end = None, None
+                $start, $end = NULL, NULL
                 $teeth_in_group = 1;
             }
 
