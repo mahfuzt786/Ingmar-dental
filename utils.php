@@ -22,26 +22,37 @@ function endswith($string, $endString) {
 
 
 function tuple_to_schema($data) {
+    $TOOTH_NUMBERS_ISO = array(
+        array(18, 17, 16, 15, 14, 13, 12, 11),
+        array(21, 22, 23, 24, 25, 26, 27, 28),
+        array(38, 37, 36, 35, 34, 33, 32, 31),
+        array(41, 42, 43, 44, 45, 46, 47, 48)
+    );
+
     // Converts a tuple with findings and status in order of teeth numbers
     // to a schema.
 
     // from apps.therapies.subsidy.schema import Tooth, TeethSchema
 
-    if (is_array($data)) {
-        throw new Exception("Error Processing as data parameter");
-        // raise ValueError("Inform a tuple or a list as data parameter");
+    // if (is_array($data)) {
+    //     throw new Exception("Error Processing as data parameter");
+    //     // raise ValueError("Inform a tuple or a list as data parameter");
+    // }
+
+    // if (sizeof($data) !== 32) {
+    //     throw new Exception("Each one of the 32 teeth should be represented in the tuple");
+    // }
+
+    $returnTooth = [];
+    foreach(array_map(NULL, $TOOTH_NUMBERS_ISO, $data) as $number => $status) {
+        array_push($returnTooth, new Tooth($number, $status));
     }
 
-    if (len($data) !== 32) {
-        throw new Exception("Each one of the 32 teeth should be represented in the tuple");
-    }
+    var_dump(array_map(NULL, $TOOTH_NUMBERS_ISO, $data));
+    echo nl2br("\n\n\n\n");
+    print_r($returnTooth);
 
-    return TeethSchema(
-        [
-            Tooth($number, $status)
-            foreach (array_map(NULL, $TOOTH_NUMBERS_ISO, $data) as $number => $status)
-        ]
-    )
+    return new TeethSchema($returnTooth);
 }
 
 
@@ -49,18 +60,18 @@ function patient_therapy_to_schema($therapy) {
     // Converts a PatientTherapy model to a schema.
     // from apps.therapies.subsidy.schema import Tooth, TeethSchema
 
-    return TeethSchema(
-        [
-            Tooth(
-                $finding.tooth.number, $finding.code_status, $finding.code_finding
-            )
-            for $finding in $therapy.findings.all().order_by("tooth__order")
-        ]
-    )
+    $returnTooth = [];
+    foreach($therapy->findings.all().order_by("tooth__order") as $finding) {
+        array_push($returnTooth, Tooth(
+            $finding->tooth->number, $finding->code_status, $finding->code_finding
+        ));
+    }
+
+    return TeethSchema($returnTooth);
 }
 
 
-class TeethNumbersList($list) {
+class TeethNumbersList {
     /*"""
     Represents a list of teeth numbers with some helpers related to it.
 
@@ -68,16 +79,25 @@ class TeethNumbersList($list) {
     such as allowing only valid numbers in it.
     """*/
 
-    public $max_length = len($TOOTH_NUMBERS_ISO);
+    public $max_length; // = sizeof($TOOTH_NUMBERS_ISO);
+
+    public $list;
+
+    function __construct($list) {
+    	$this->list = $list;
+    	$this->max_length = sizeof($TOOTH_NUMBERS_ISO);
+  	}
 
     public static function previous($number) {
         /*"""
         Return the previous (clockwise ISO format) tooth number for a given tooth number.
         """*/
-        $number_index = $TOOTH_NUMBERS_ISO.index($number)
+        $number_index = $TOOTH_NUMBERS_ISO.index($number);
 
-        if ($number_index == 0)
+        if ($number_index == 0) {
             return NULL;
+        }
+
         return $TOOTH_NUMBERS_ISO[$number_index - 1];
     }
 
@@ -85,10 +105,11 @@ class TeethNumbersList($list) {
         /*"""
         Return the next (clockwise ISO format) tooth number for a given tooth number.
         """*/
-        $number_index = $TOOTH_NUMBERS_ISO.index($number)
+        $number_index = $TOOTH_NUMBERS_ISO.index($number);
 
-        if ($number_index == len($TOOTH_NUMBERS_ISO) - 1)
+        if ($number_index == len($TOOTH_NUMBERS_ISO) - 1) {
             return NULL;
+        }
 
         return $TOOTH_NUMBERS_ISO[$number_index + 1];
     }
@@ -98,28 +119,29 @@ class TeethNumbersList($list) {
         Generate a range of teeth considering the ISO format
         representation.
         """*/
-        $start_index = $TOOTH_NUMBERS_ISO.index($start);
-        $end_index = $TOOTH_NUMBERS_ISO.index($end);
+        $start_index = array_search($start, $TOOTH_NUMBERS_ISO); //$TOOTH_NUMBERS_ISO.index($start);
+        $end_index = array_search($end, $TOOTH_NUMBERS_ISO); //$TOOTH_NUMBERS_ISO.index($end);
 
-        if ($start not in $TOOTH_NUMBERS_ISO) {
-            raise ValueError(f"Invalid region start tooth number: {start}");
+        if (! in_array($start, $TOOTH_NUMBERS_ISO)) {
+            // raise ValueError(f"Invalid region start tooth number: {start}");
+            sprintf("Invalid region start tooth number: %s", $start);
         }
 
-        if ($end not in $TOOTH_NUMBERS_ISO) {
-            raise ValueError(f"Invalid region end tooth number: {end}");
+        if (! in_array($end, $TOOTH_NUMBERS_ISO)) {
+            // raise ValueError(f"Invalid region end tooth number: {end}");
+            sprintf("Invalid region end tooth number: %s", $end);
+
         }
 
         if ($start_index > $end_index) {
-            raise ValueError(
-                "Region should be created in clockwise order. "
-                f"Invalid representation: start={start} end={end}"
-            )
+            throw new Exception(
+                "Region should be created in clockwise order. Invalid representation.");
         }
 
         $teeth = [];
         $valid = False;
 
-        for $i in $TOOTH_NUMBERS_ISO {
+        foreach($TOOTH_NUMBERS_ISO as $i) {
             if ($i == $start) {
                 $valid = True;
             }
@@ -137,21 +159,21 @@ class TeethNumbersList($list) {
     }
 
     public static function position($tooth_number) {
-        return $TOOTH_NUMBERS_ISO.index($tooth_number);
+        return array_search($tooth_number, $TOOTH_NUMBERS_ISO); //$TOOTH_NUMBERS_ISO.index($tooth_number);
     }
 
-    function sort(self) {
+    function sort() {
         /*"""
         Given a list of teeth numbers or teeth intervals (in the format "18-14" or in
         the format [18, 14]), return it in order, following the ISO standard.
         """*/
 
-        function key(value) {
-            if isinstance(value, str)
+        function key($value) {
+            if (is_string($value)) {
                 // When it is applied to the whole mouth, we just order
                 // OK (upper jaw) first of UK (mandible)
-                if ($value in ["OK", "UK"]) {
-                    if ($value == "OK" {
+                if (in_array($value, ["OK", "UK"])) {
+                    if ($value == "OK") {
                         return 0;
                     }
                     return 1;
@@ -164,51 +186,53 @@ class TeethNumbersList($list) {
                 }
                 else {
                     // The case where we received an int as string
-                    $value = int(value);
+                    $value = int($value);
                 }
+            }
 
-            if isinstance(value, list) {
-                value = int(value[0]);
+            if (is_array($value)) {
+                $value = int($value[0]);
             }
 
             return $TOOTH_NUMBERS_ISO.index(int($value));
         }
 
-        return TeethNumbersList(sorted(self, key=$key));
+        return TeethNumbersList(sorted(self, $key=$key));
     }
 
-    function group(self) {
+    function group() {
         /*"""
         From a list of teeth numbers, try to find at least 3 teeth that are
         side by side and, after finding them, generate a group to represent it.
         Teeth that are not part of any group are just returned alone.
         """*/
-        teeth_in_group = 1
-        start, end = NULL, NULL
-        groups = TeethNumbersList()
+        $teeth_in_group = 1;
+        $start = NULL;
+        $end = NULL;
+        $groups = TeethNumbersList();
 
-        if len(self) <= 2
-            return $this->sort()
+        if (len(self) <= 2)
+            return $this->sort();
 
-        for i, _ in enumerate(self)
-            not_last_index = i != len(self) - 1
+        foreach(array_values(self) as  $i => $_) {
+            $not_last_index = $i != len(self) - 1;
             // Our goal is to see if the teeth are contiguous in the mouth or not.
             // Notice that you can check if one tooth is side by side of other,
             // by just checking the index absolute difference between them.
-            contiguous_teeth = False
-            if not_last_index
-                contiguous_teeth = (
+            $contiguous_teeth = False;
+            if ($not_last_index) {
+                $contiguous_teeth = (
                     abs(
-                        TOOTH_NUMBERS_ISO.index(self[i])
-                        - TOOTH_NUMBERS_ISO.index(self[i + 1])
-                    )
-                    == 1
-                )
+                        $TOOTH_NUMBERS_ISO.index(self[$i])
+                        - $TOOTH_NUMBERS_ISO.index(self[$i + 1])
+                    ) == 1
+                );
+            }
 
             if ($contiguous_teeth) {
-                $end = self[i + 1];
+                $end = self[$i + 1];
                 if (! $start) {
-                    $start = self[i]
+                    $start = self[$i];
                     $teeth_in_group = 2;
                 }
                 else {
@@ -217,16 +241,17 @@ class TeethNumbersList($list) {
             }
             else {
                 if ($teeth_in_group >= 3) {
-                    $groups.append([$start, $end]);
+                    array_push($groups, [$start, $end]);
                 }
                 else {
-                    $groups.extend(self[$i + 1 - $teeth_in_group : $i + 1]);
+                    array_push($groups, array_slice(self[$i + 1 - $teeth_in_group], self[$i + 1]));
                 }
 
-                $start, $end = NULL, NULL
+                $start = NULL;
+                $end = NULL;
                 $teeth_in_group = 1;
             }
-
+        }
         return $groups.sort();
     }
 }
@@ -237,11 +262,12 @@ function memoize($func) {
     """*/
     $cache = dict();
 
-    function memoized_func(*$args) {
-        if $args in $cache {
+    // function memoized_func(*$args) {
+    function memoized_func($args) {
+        if (in_array($args, $cache)) {
             return $cache[$args];
         }
-        $result = func(*$args);
+        $result = func($args);
         $cache[$args] = $result;
         return $result;
     }
@@ -263,7 +289,7 @@ function subsidy_equivalent($subsidy_group_left, $subsidy_group_right) {
        "2.1+1.1" = "2.x+1.1" -> True
        "2.1+1.1" = "2.1+1.x" -> True
     """**/
-    if $subsidy_group_left == $subsidy_group_right {
+    if ($subsidy_group_left == $subsidy_group_right) {
         return True;
     }
 
@@ -271,26 +297,26 @@ function subsidy_equivalent($subsidy_group_left, $subsidy_group_right) {
     $subsidy_list_right = $subsidy_group_right.split("+");
 
     // Number of subsidies are different
-    if len($subsidy_list_left) != len($subsidy_list_right) {
+    if (len($subsidy_list_left) != len($subsidy_list_right)) {
         return False;
     }
 
-    for $subsidy_left, $subsidy_right in zip(
-        $subsidy_list_left, $subsidy_list_right
-    ) {
-        if "x" in $subsidy_right {
-            if (f"{subsidy_left.split('.')[0]}.x" != $subsidy_right) {
+    foreach (array_map(NULL, $subsidy_list_left, $subsidy_list_right) as $subsidy_left => $subsidy_right) {
+        if (in_array("x", $subsidy_right)) {
+            // if (f"{subsidy_left.split('.')[0]}.x" != $subsidy_right) {
+            if ($subsidy_left.split('.')[0].x != $subsidy_right) {
                 return False;
             }
         }
 
-        if "x" in $subsidy_left {
-            if (f"{subsidy_right.split('.')[0]}.x" != $subsidy_left) {
+        if (in_array("x", $subsidy_left)) {
+            // if (f"{subsidy_right.split('.')[0]}.x" != $subsidy_left) {
+            if ($subsidy_right.split('.')[0].x != $subsidy_left) {
                 return False;
             }
         }
 
-        if "x" not in $subsidy_left and "x" not in $subsidy_right {
+        if (! in_array("x", $subsidy_left) AND ! in_array("x",$subsidy_right)) {
             if ($subsidy_left != $subsidy_right) {
                 return False;
             }

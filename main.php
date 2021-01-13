@@ -6,38 +6,43 @@
     * and it will return you the subsidies.
     */
     require_once('subsidies.php');
-    require_once('rules/by_region.php');
+    require_once('utils.php');
+    // require_once('rules/by_region.php');
     require_once('rules/by_tooth.php');
 
     // from copy import deepcopy
-    use function lib\vendor\myclabs\deepcopy\src\DeepCopy\deep_copy;
+    // use function lib\vendor\myclabs\deepcopy\src\DeepCopy\deep_copy;
 
-    function generate_all_subsidies ($schema)
-    {
+    $schema = [['14', 'f'], ['25', 'x'], ['31', 'x']];
+    tuple_to_schema($schema);
+    var_dump(tuple_to_schema($schema));
+    // generate_all_subsidies(tuple_to_schema($schema));
+    function generate_all_subsidies ($schema) {
         /*
         * Generate all subsidy for the given schema.
         */
         // As we need to remove the findings in our evaluation loop,
         // it is better to keep the original schema with no changes
-        $schema_by_region = deep_copy($schema);
-        $schema_by_tooth = deep_copy($schema);
-        $identified_subsidies = new SubsidiesList();
+        // $schema_by_region = deep_copy($schema);
+        $schema_by_tooth = clone($schema);
+        $identified_subsidies = new SubsidiesList($schema);
 
         // Get all teeth involved in a rule to remove it from the schema, once
         // we will evaluate the schema recursively without the findings related
         // to the identified rules
-        while (evaluate_by_region($schema_by_region, $identified_subsidies)) {
-            foreach ($identified_subsidies as $subsidy) {
-                // Optional subsidies should not be considered to remove
-                // the teeth, it will only be kept as a mark but we could
-                // generate other subsidies in the same teeth related to it
-                if (! $subsidy.get("optional", False)) {
-                    $schema_by_region.remove_findings($subsidy["region"]);
-                }
-            }
-        }
+        // while (evaluate_by_region($schema_by_region, $identified_subsidies)) {
+        //     foreach ($identified_subsidies as $subsidy) {
+        //         // Optional subsidies should not be considered to remove
+        //         // the teeth, it will only be kept as a mark but we could
+        //         // generate other subsidies in the same teeth related to it
+        //         if (! $subsidy.get("optional", False)) {
+        //             $schema_by_region->remove_findings($subsidy["region"]);
+        //         }
+        //     }
+        // }
 
-        $subsidies_identified_by_region = len($identified_subsidies);
+        $subsidies_identified_by_region = sizeof($identified_subsidies);
+        var_dump($subsidies_identified_by_region);
 
         while (evaluate_by_tooth($schema_by_tooth, $identified_subsidies)) {
             // We only remove regions of the subsidies identified by_tooth
@@ -46,7 +51,7 @@
                 // // the teeth, it will only be kept as a mark but we could
                 // // generate other subsidies in the same teeth related to it
                 if (! $subsidy.get("optional", False))
-                    $schema_by_tooth.remove_findings($subsidy["region"]);
+                    $schema_by_tooth->remove_findings($subsidy["region"]);
             }
         }
 

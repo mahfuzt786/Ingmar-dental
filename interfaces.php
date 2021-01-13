@@ -19,38 +19,43 @@ class RuleInterface {
         return $this->run();
     }
 
-    function run(self) {
+    function run() {
         /*"""
         Method that runs the rule code.
         """*/
-        raise NotImplementedError(
-            f"You need to implement run method in {$this->__class__}"
-        )
+        throw new Exception(
+            "You need to implement run method"
+        );
     }
 
-    function __eq__(self, other) {
+    function __eq__($other) {
         /*"""
         When comparing rules, what I want to compare is if they are based on
         the same base class. It simplify tests and equal checks.
         """*/
-        if isinstance(other, RuleInterface) {
-            return $this->__class__ == other.__class__;
+        if ($other instanceof RuleInterface) {
+            return $this->__class__ == $other->__class__;
         }        
         return False;
     }
 
-    function __str__(self) {
-        return $this->__class__.__qualname__;
+    function __str__() {
+        return $this->__class__->__qualname__;
     }
 }
 
-class SeparatedJawRuleCompleteInterface(RuleInterface) {
+class SeparatedJawRuleCompleteInterface {
     /*"""
     Some rules execute twice, one for upper jaw and other for mandible, this
     interface simplify this process implementation.
     """*/
+    public $RuleInterface;
 
-    function run(self) {
+    function __construct__($RuleInterface) {
+        $this->RuleInterface = $RuleInterface;
+    }
+
+    function run() {
         // Method that actually runs the rule code.
 
         $upper_jaw_result = $this->upper_jaw();
@@ -58,68 +63,80 @@ class SeparatedJawRuleCompleteInterface(RuleInterface) {
         return $upper_jaw_result or $mandible_result;
     }
 
-    function upper_jaw(self) {
+    function upper_jaw() {
         /*"""
         If some subsidy is found, return the region where it was found.
         """*/
-        raise NotImplementedError(
-            f"You need to implement upper_jaw method in {$this->__class__}"
-        )
+        throw new Exception("You need to implement upper_jaw method");
     }
 
-    function mandible(self) {
+    function mandible() {
         /*"""
         If some subsidy is found, return the region where it was found.
         """*/
-        raise NotImplementedError(
-            f"You need to implement mandible method in {$this->__class__}"
-        )
+        throw new Exception("You need to implement mandible method");
     }
 }
 
 
-class SeparatedJawRuleSimpleInterface(SeparatedJawRuleCompleteInterface) {
-    function execute_for(self, region) {
-        raise NotImplementedError(
-            f"You need to implement execute_for in {$this->__class__}"
-        )
+class SeparatedJawRuleSimpleInterface {
+    public $SeparatedJawRuleCompleteInterface;
+
+    function __construct__($SeparatedJawRuleCompleteInterface) {
+        $this->SeparatedJawRuleCompleteInterface = $SeparatedJawRuleCompleteInterface;
     }
 
-    function upper_jaw(self) {
-        // from apps.therapies.subsidy.regions import Region
-        require_once('regions.php')
-
-        return $this->execute_for(Region.upper_jaw())
+    function execute_for($region) {
+        throw new Exception(
+            "You need to implement execute_for in");
     }
 
-    function mandible(self) {
+    function upper_jaw() {
         // from apps.therapies.subsidy.regions import Region
-        require_once('regions.php')
+        require_once('regions.php');
 
-        return $this->execute_for(Region.mandible())
+        $Region = new Region();
+        $Region = $Region->upper_jaw();
+
+        return $this->execute_for($Region);
+    }
+
+    function mandible() {
+        // from apps.therapies.subsidy.regions import Region
+        require_once('regions.php');
+
+        $Region = new Region();
+        $Region = $Region->mandible();
+
+        return $this->execute_for($Region);
     }
 }
 
 
-class RuleByToothInteface(RuleInterface) {
-    function run(self) {
+class RuleByToothInteface {
+    
+    public $RuleInterface;
+
+    function __construct__($RuleInterface) {
+        $this->RuleInterface = $RuleInterface;
+    }
+
+    function run() {
         /*"""
         Get the next tooth that have any condition in it and execute
         the rules for this one.
         """*/
-        for $tooth in $this->schema.teeth {
-            if $tooth.condition {
-                if $this->execute_for($tooth) {
+        foreach ($this->schema->teeth as $tooth) {
+            if ($tooth->condition) {
+                if ($this->execute_for($tooth)) {
                     return True;
                 }
             }
         }
     }
 
-    function execute_for(self, tooth) {
-        raise NotImplementedError(
-            f"You need to implement execute_for in {$this->__class__}"
-        )
+    function execute_for($tooth) {
+        throw new Exception("You need to implement execute_for");
     }
 }
 
@@ -130,10 +147,9 @@ class NeighborInterface {
     implement this interface.
     """*/
 
-    function is_neighbor_of(self, obj) {
-        raise NotImplementedError(
-            f"You need to implement is_neighbor_of method in {$this->__class__}"
-        )
+    function is_neighbor_of($obj) {
+        throw new Exception(
+            "You need to implement is_neighbor_of method");
     }
 }
 
@@ -144,37 +160,33 @@ class RegionInterface {
     mouth should implement this interface.
     """*/
 
-    @property
-    function teeth(self) {
+    // @property
+    function teeth() {
         /*"""
         Return list of Tooth that composes the region.
         """*/
-        raise NotImplementedError(
-            f"You need to implement teeth property in {$this->__class__}"
-        )
+        throw new Exception(
+            "You need to implement teeth property in ");
     }
 
-    @property
-    function to_be_replaced(self) {
-        raise NotImplementedError(
-            f"You need to implement to_be_replaced property in {$this->__class__}"
-        )
+    // @property
+    function to_be_replaced() {
+        throw new Exception(
+            "You need to implement to_be_replaced property in ");
     }
 
-    @property
-    function to_be_replaced_count(self) {
+    // @property
+    function to_be_replaced_count() {
         return len($this->to_be_replaced);
     }
 
-    function __contains__(self, key) {
-        raise NotImplementedError(
-            f"You need to implement __contains__ method in {$this->__class__}"
-        )
+    function __contains__($key) {
+        throw new Exception(
+            "You need to implement __contains__ method in ");
     }
 
-    function __len__(self) {
-        raise NotImplementedError(
-            f"You need to implement __contains__ method in {$this->__class__}"
-        )
+    function __len__() {
+        throw new Exception(
+            "You need to implement __contains__ method in ");
     }
 }
