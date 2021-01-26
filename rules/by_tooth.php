@@ -15,13 +15,23 @@ class StatusPwInPosteriorRegion {
 
     public $RuleByToothInteface;
 
+    // const $RuleByToothInteface = new RuleByToothInteface()->run;
+
+    function __construct($schema, $identified_subsidies) {
+        $this->schema = $schema;
+        $this->identified_subsidies = $identified_subsidies;
+        $this->RuleByToothInteface = new RuleByToothInteface();
+    }
+
     function execute_for($tooth) {
-        if (! in_array($tooth, RegionGroup(
-            Region(18, 14, $this->schema),
-            Region(24, 28, $this->schema),
-            Region(38, 34, $this->schema),
-            Region(44, 48, $this->schema),
-        ).get_teeth_with_condition("pw"))) {
+        $RegionGroup = new RegionGroup(
+            new Region(18, 14, $this->schema),
+            new Region(24, 28, $this->schema),
+            new Region(38, 34, $this->schema),
+            new Region(44, 48, $this->schema),
+        );
+
+        if (! in_array($tooth, $RegionGroup->get_teeth_with_condition("pw"))) {
             return False;
         }
 
@@ -56,7 +66,7 @@ class StatusPwInPosteriorRegion {
     }
 }
 
-$status_pw_in_posterior_region = new StatusPwInPosteriorRegion();
+// $status_pw_in_posterior_region = new StatusPwInPosteriorRegion();
 
 
 class ToBeTreatedWithNoAbutmentTeethIncluded {
@@ -68,6 +78,12 @@ class ToBeTreatedWithNoAbutmentTeethIncluded {
     // gap (2.5)
 
     public $RuleByToothInteface;
+
+    function __construct($schema, $identified_subsidies) {
+        $this->schema = $schema;
+        $this->RuleByToothInteface = new RuleByToothInteface();
+        $this->identified_subsidies = $identified_subsidies;
+    }
 
     function execute_for($tooth) {
         if (! $tooth->to_be_treated) {
@@ -115,69 +131,87 @@ class ToBeTreatedWithNoAbutmentTeethIncluded {
     }
 }
 
-$to_be_treated_with_no_abutment_teeth_included = new ToBeTreatedWithNoAbutmentTeethIncluded();
+// $to_be_treated_with_no_abutment_teeth_included = new ToBeTreatedWithNoAbutmentTeethIncluded();
 
 
 class StatusPwInFrontRegion {
     // pw in 13-23 (front [anterior] region)
 
-    public $RuleByToothInteface;
+    // public $RuleByToothInteface;
+
+    function __construct($schema, $identified_subsidies) {
+        $this->schema = $schema;
+        $this->identified_subsidies = $identified_subsidies;
+        $this->RuleByToothInteface = new RuleByToothInteface();
+    }
 
     function execute_for($tooth) {
-        // if tooth not in RegionGroup(
-        //     Region(13, 23, $this->schema), Region(33, 43, $this->schema)
-        // ).get_teeth_with_condition("pw") {
-        //     return False;
-        // }
+        $RegionGroup = new RegionGroup(
+            new Region(13, 23, $this->schema),
+            new Region(33, 43, $this->schema)
+        );
 
-        // // No 1.1 can happen with a 3.2 subsidy, we just return it as an
-        // // optional because dentist can choose it in optional_subsidy_group
-        // // rules
-        // // Issue #427: make it also be applied for 4.1/4.3 cases
-        // if tooth in $this->identified_subsidies.teeth(
-        //     $subsidy_code=["3.2", "4.1", "4.3"]
-        // ) {
-        //     array_push($this->identified_subsidies, 
-        //         [
-        //             "subsidy"=> "1.1",
-        //             "region"=> [$tooth],
-        //             "applied_rule"=> self,
-        //             "optional"=> True,
-        //         ]
-        //     );
-        //     // Optional rules do not stop the execution cicle
-        //     return False;
-        // }
-        // // Issue #261: if is an abutment tooth and a 2.1 is given for
-        // // this tooth, it can not receive a 1.X
-        // if (in_array($tooth, $this->identified_subsidies.teeth($subsidy_code="2.1"))) {
-        //     return False;
-        // }
+        if (! in_array($tooth, $RegionGroup->get_teeth_with_condition("pw"))) {
+            return False;
+        }
 
-        // array_push($this->identified_subsidies, [
-        //     rv_subsidy_1x(
-        //         {"subsidy"=> "1.1", "region"=> [$tooth], "applied_rule"=> self}
-        //     )]
-        // );
+        // No 1.1 can happen with a 3.2 subsidy, we just return it as an
+        // optional because dentist can choose it in optional_subsidy_group
+        // rules
+        // Issue #427: make it also be applied for 4.1/4.3 cases
+        if (in_array($tooth, $this->identified_subsidies->teeth(
+            $subsidy_code=["3.2", "4.1", "4.3"]
+        ))) {
+            array_push($this->identified_subsidies, 
+                [
+                    "subsidy"=> "1.1",
+                    "region"=> [$tooth],
+                    "applied_rule"=> self,
+                    "optional"=> True,
+                ]
+            );
+            // Optional rules do not stop the execution cicle
+            return False;
+        }
+        // Issue #261: if is an abutment tooth and a 2.1 is given for
+        // this tooth, it can not receive a 1.X
+        if (in_array($tooth, $this->identified_subsidies.teeth($subsidy_code="2.1"))) {
+            return False;
+        }
+
+        array_push($this->identified_subsidies, [
+            rv_subsidy_1x(
+                ["subsidy"=> "1.1", "region"=> [$tooth], "applied_rule"=> self]
+            )]
+        );
         return True;
     }
 }
 
-$status_pw_in_front_region = new StatusPwInFrontRegion();
+// $status_pw_in_front_region = new StatusPwInFrontRegion();
 
 
 function evaluate_by_tooth($schema, $identified_subsidies) {
     // Apply the "by tooth" rules for a given schema and return the subsidy that
     // need to be used.
 
+    // $rules = [
+    //     $status_pw_in_posterior_region,
+    //     $to_be_treated_with_no_abutment_teeth_included,
+    //     $status_pw_in_front_region,
+    // ];
     $rules = [
-        $status_pw_in_posterior_region,
-        $to_be_treated_with_no_abutment_teeth_included,
-        $status_pw_in_front_region,
+        new StatusPwInPosteriorRegion($schema, $identified_subsidies),
+        new ToBeTreatedWithNoAbutmentTeethIncluded($schema, $identified_subsidies),
+        new StatusPwInFrontRegion($schema, $identified_subsidies),
     ];
 
+    $StatusPwInPosteriorRegion = new StatusPwInFrontRegion($schema, $identified_subsidies);
+
     foreach($rules as $rule_to_execute) {
-        if (rule_to_execute($schema, $identified_subsidies)) {
+        // print_r($rule_to_execute);
+
+        if ($rule_to_execute) {
             return True;
         }
     }
