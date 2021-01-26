@@ -20,7 +20,7 @@ class SubsidiesList {
     public $list;
 
     function __construct($list) {
-    	$this->list = $list;
+        $this->list = $list;
   	}
 
     function exists($subsidy_code_startswith=NULL, $region=NULL) {
@@ -54,10 +54,10 @@ class SubsidiesList {
 
         if (! is_array($subsidy_code))
             $subsidy_code = [$subsidy_code];
-
-        foreach (self as $subsidy) {
+        
+        foreach ($this as $subsidy) {
             foreach ($subsidy_code_startswith as $item_subsidy_code_startswith) {
-                if (! $subsidy->subsidy->startswith(
+                if (! $subsidy["subsidy"]->startswith(
                     $item_subsidy_code_startswith)) {
                     continue;
                 }
@@ -181,25 +181,26 @@ class SubsidiesList {
         return $output;
     }
 
-    // function rvs($include_optionals=False) {
-    //     /*"""
-    //     Return a list of the RV of all tooth.
-    //     """*/
-    //     $rvs = [set()] * TeethNumbersList()->max_length;
+    function rvs($include_optionals=False) {
+        /*"""
+        Return a list of the RV of all tooth.
+        """*/
+        $rvs = (array) TeethNumbersList()->max_length;
 
-    //     for subsidy in self
-    //         if not include_optionals and subsidy.get("optional", False)
-    //             continue
+        foreach ($this as $subsidy) {
+            if (! $include_optionals and $subsidy.get("optional", False))
+                continue;
 
-    //         for tooth in subsidy["region"]
-    //             index = TeethNumbersList.position(tooth.number)
-    //             rvs[index] = rvs[index].union(tooth.rv)
+            foreach ($subsidy["region"] as $tooth)
+                $index = new TeethNumbersList.position($tooth.number);
+                $rvs[$index] = $rvs[$index].union($tooth.rv);
+        }
 
-    //     return [
-    //         {"tooth_number": number, "rv": rv}
-    //         for number, rv in zip(TeethNumbersList.range(18, 48), rvs)
-    //     ]
-    // }
+        return [
+            // {"tooth_number": number, "rv": rv}
+            // for number, rv in zip(TeethNumbersList.range(18, 48), rvs)
+        ];
+    }
 
     function _region_to_str($regions) {
         /*"""

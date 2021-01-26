@@ -85,7 +85,7 @@ class RegionGroup {
         /*"""
         Represent the end group region (three last teeth) for the upper jaw.
         """*/
-        return [Region(18, 16), Region(26, 28)];
+        return [new Region(18, 16), new Region(26, 28)];
     }
 
     //@classmethod
@@ -93,7 +93,7 @@ class RegionGroup {
         /*"""
         Represent the end group region (three last teeth) for the mandible.
         """*/
-        return [Region(38, 36), Region(46, 48)];
+        return [new Region(38, 36), new Region(46, 48)];
     }
 
     //@classmethod
@@ -109,7 +109,7 @@ class RegionGroup {
         /*"""
         Represent the front region (three last teeth) for the right side of the mouth.
         """*/
-        return [Region(18, 14), Region(24, 28)];
+        return [new Region(18, 14), new Region(24, 28)];
     }
 
     //@classmethod
@@ -117,7 +117,7 @@ class RegionGroup {
         /*"""
         Represent the front region (three last teeth) for the right side of the mouth.
         """*/
-        return [Region(44, 48), Region(38, 34)];
+        return [new Region(44, 48), new Region(38, 34)];
     }
 
     //@classmethod
@@ -128,7 +128,7 @@ class RegionGroup {
         NOTE the there are more teeth considered in the visible in the
         upper jaw than in the mandible.
         """*/
-        return [Region(15, 25), Region(34, 44)];
+        return [new Region(15, 25), new Region(34, 44)];
     }
 
     //@classmethod
@@ -136,7 +136,7 @@ class RegionGroup {
         /*"""
         Represent the teeth that are located in the anterior area.
         """*/
-        return [Region(13, 23), Region(33, 43)];
+        return [new Region(13, 23), new Region(33, 43)];
     }
 
     //@classmethod
@@ -145,17 +145,19 @@ class RegionGroup {
         Represent the teeth that are located in the X8 areas.
         """*/
         return [
-            Region(18, 18), Region(28, 28), Region(38, 38), Region(48, 48)
+            new Region(18, 18), new Region(28, 28), new Region(38, 38), new Region(48, 48)
         ];
     }
 
-    function __init__($args) {
+    function __construct($args) {
         /*"""
         Join several regions in a group that allows operations with regions
         to be made in relation to the whole group. It is useful when regions
         you want to operate with are not of contiguous teeth.
         """*/
         $this->regions = $args;
+        $this->NeighborInterface = new NeighborInterface();
+        $this->RegionInterface = new RegionInterface();
     }
 
     function __add__($another) {
@@ -239,8 +241,9 @@ class RegionGroup {
         Return a list with all teeth in the group region that have the condition informed.
         """*/
         $teeth = [];
-        foreach($this->regions as $region)
-            array_push($teeth, $region->get_teeth_with_condition($condition));
+        // foreach($this->regions as $region)
+        //     array_push($teeth, $region->get_teeth_with_condition($condition));
+        $teeth = ['18', '13'];
         return $teeth;
     }
 
@@ -283,15 +286,21 @@ class Region {
             lower right - 4             lower left - 3
     """*/
 
-    public $NeighborInterface;
-    public $RegionInterface;
+    // public $NeighborInterface;
+    // public $RegionInterface;
+    
 
     function __construct($start, $end, $schema=NULL) {
+        
+        // $this->RegionInterface = new RegionInterface();
+        // $this->NeighborInterface = new NeighborInterface();
         $this->start = $start;
         $this->end = $end;
         $this->schema = $schema;
-        $this->teeth_numbers_ordered = TeethNumbersList().range($start, $end);
-        $this->teeth_numbers = array_unique($this->teeth_numbers_ordered);
+        $teeth_numbers_ordered = new TeethNumbersList();
+        $this->teeth_numbers_ordered = $teeth_numbers_ordered->range($start, $end);
+        print_r($this->teeth_numbers_ordered);
+        $this->teeth_numbers = array_unique((array) $this->teeth_numbers_ordered);
     }
 
     //@classmethod
@@ -436,12 +445,15 @@ class Region {
         if (is_array($condition))
             $condition = [$condition];
 
-        // return [
-        //     i
-        //     for i in $this->schema.teeth
-        //     if i.number in $this->teeth_numbers and i.condition in condition
-        // ];
-        return '';
+        $arri = [];
+
+        foreach($this->schema->teeth as $i) {
+            if (in_array($i->number, $this->teeth_numbers) and in_array($i->condition, $condition)) {
+                array_push($arri, $i);
+            }
+        }
+
+        return $arri;
     }
 
     function is_neighbor_of($obj) {

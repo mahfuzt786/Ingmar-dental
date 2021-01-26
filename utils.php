@@ -34,23 +34,24 @@ function tuple_to_schema($data) {
 
     // from apps.therapies.subsidy.schema import Tooth, TeethSchema
 
-    // if (is_array($data)) {
-    //     throw new Exception("Error Processing as data parameter");
-    //     // raise ValueError("Inform a tuple or a list as data parameter");
-    // }
+    if (! is_array($data)) {
+        throw new Exception("Error Processing as data parameter");
+        // raise ValueError("Inform a tuple or a list as data parameter");
+    }
 
-    // if (sizeof($data) !== 32) {
-    //     throw new Exception("Each one of the 32 teeth should be represented in the tuple");
-    // }
+    if (sizeof($data) !== 32) {
+        throw new Exception("Each one of the 32 teeth should be represented in the tuple");
+    }
 
     $returnTooth = [];
     foreach(array_map(NULL, $TOOTH_NUMBERS_ISO, $data) as $number => $status) {
+        // print_r($status);
+        // echo nl2br("\n");
         array_push($returnTooth, new Tooth($number, $status));
     }
 
-    var_dump(array_map(NULL, $TOOTH_NUMBERS_ISO, $data));
+    // var_dump(array_map(NULL, $TOOTH_NUMBERS_ISO, $data));
     echo nl2br("\n\n\n\n");
-    print_r($returnTooth);
 
     return new TeethSchema($returnTooth);
 }
@@ -83,9 +84,9 @@ class TeethNumbersList {
 
     public $list;
 
-    function __construct($list) {
+    function __construct($list=NULL, $max_length=32) {
     	$this->list = $list;
-    	$this->max_length = sizeof($TOOTH_NUMBERS_ISO);
+    	$this->max_length = 32; //sizeof($TOOTH_NUMBERS_ISO);
   	}
 
     public static function previous($number) {
@@ -119,6 +120,13 @@ class TeethNumbersList {
         Generate a range of teeth considering the ISO format
         representation.
         """*/
+        $TOOTH_NUMBERS_ISO = array(
+            array(18, 17, 16, 15, 14, 13, 12, 11),
+            array(21, 22, 23, 24, 25, 26, 27, 28),
+            array(38, 37, 36, 35, 34, 33, 32, 31),
+            array(41, 42, 43, 44, 45, 46, 47, 48)
+        );
+
         $start_index = array_search($start, $TOOTH_NUMBERS_ISO); //$TOOTH_NUMBERS_ISO.index($start);
         $end_index = array_search($end, $TOOTH_NUMBERS_ISO); //$TOOTH_NUMBERS_ISO.index($end);
 
@@ -155,7 +163,7 @@ class TeethNumbersList {
             }
         }
 
-        return TeethNumbersList($teeth);
+        return new TeethNumbersList($teeth);
     }
 
     public static function position($tooth_number) {

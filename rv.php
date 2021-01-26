@@ -101,7 +101,7 @@ function rv_subsidy_2x($subsidy) {
         if ($tooth->abutment_tooth) {
             $tooth->rv.add("K");
         }
-        if (in_array($tooth, RegionGroup.visible_area())) {
+        if (in_array($tooth, new RegionGroup().visible_area())) {
             $tooth->rv.add("V");
         }
     }
@@ -128,7 +128,7 @@ function rv_subsidy_1x($subsidy) {
             $tooth->rv.add("P");
         }
 
-        if ($subsidy["subsidy"] == "1.3" or in_array($tooth, RegionGroup()->visible_area())) {
+        if ($subsidy["subsidy"] == "1.3" or in_array($tooth, new RegionGroup().visible_area())) {
             tooth->rv.add("V");
         }
     }

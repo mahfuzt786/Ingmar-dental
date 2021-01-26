@@ -10,7 +10,7 @@ class RuleInterface {
     """*/
 
     // function __call__(self, $schema, $identified_subsidies) {
-    function __call__($schema, $identified_subsidies) {
+    function __construct($schema, $identified_subsidies) {
         /*"""
         Executes the rules code and return its results.
         """*/
@@ -24,7 +24,7 @@ class RuleInterface {
         Method that runs the rule code.
         """*/
         throw new Exception(
-            "You need to implement run method"
+            "You need to implement run method". get_class($this)
         );
     }
 
@@ -49,10 +49,12 @@ class SeparatedJawRuleCompleteInterface {
     Some rules execute twice, one for upper jaw and other for mandible, this
     interface simplify this process implementation.
     """*/
-    public $RuleInterface;
+    // public $RuleInterface;
 
-    function __construct__($RuleInterface) {
-        $this->RuleInterface = $RuleInterface;
+    function __construct($schema, $identified_subsidies, $RuleInterface=NULL) {
+        $this->schema = $schema;
+        $this->identified_subsidies = $identified_subsidies;
+        $this->RuleInterface = new RuleInterface($schema, $identified_subsidies);
     }
 
     function run() {
@@ -80,10 +82,10 @@ class SeparatedJawRuleCompleteInterface {
 
 
 class SeparatedJawRuleSimpleInterface {
-    public $SeparatedJawRuleCompleteInterface;
+    // public $SeparatedJawRuleCompleteInterface;
 
-    function __construct__($SeparatedJawRuleCompleteInterface) {
-        $this->SeparatedJawRuleCompleteInterface = $SeparatedJawRuleCompleteInterface;
+    function __construct($SeparatedJawRuleCompleteInterface=NULL) {
+        $this->SeparatedJawRuleCompleteInterface = new SeparatedJawRuleCompleteInterface;
     }
 
     function execute_for($region) {
@@ -115,10 +117,10 @@ class SeparatedJawRuleSimpleInterface {
 
 class RuleByToothInteface {
     
-    public $RuleInterface;
+    // $RuleInterface = new RuleInterface();
 
-    function __construct__($RuleInterface) {
-        $this->RuleInterface = $RuleInterface;
+    function __construct() {
+        $this->RuleInterface = new RuleInterface();
     }
 
     function run() {

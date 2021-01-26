@@ -10,18 +10,19 @@ require_once('mixins.php');
 class TeethSchema {
     public $SchemaInterdentalGapHandlingMixin;
     public $SchemaRegionIdentifierHandlingMixin;
+
     /*"""
     Represents a mouth with its teeth and the findings in each one.
     """*/
 
     // function __construct__($SchemaInterdentalGapHandlingMixin, $SchemaRegionIdentifierHandlingMixin, $teeth) {
-    function __construct__($teeth) {
+    function __construct($teeth) {
         // $this->SchemaInterdentalGapHandlingMixin = $SchemaInterdentalGapHandlingMixin;
-        // $this->SchemaRegionIdentifierHandlingMixin = $SchemaRegionIdentifierHandlingMixin;
+        // $this->SchemaRegionIdentifierHandlingMixin = new SchemaRegionIdentifierHandlingMixin();
 
         $this->teeth = $teeth;
         foreach ($teeth as $i) {
-            $i->set_schema(self);
+            $i->set_schema($this);
         }
     }
 
@@ -146,6 +147,7 @@ class Tooth {
     }
 
     function set_schema($schema) {
+        print('*-*-*-*-*-*-* ');
         $this->schema = $schema;
     }
 
