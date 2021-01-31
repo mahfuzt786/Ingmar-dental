@@ -9,4 +9,11 @@
  */
 
 //Include dental Class
-require 'dental.php';
+require 'subsidy_php/new.php';
+
+if (isset($_GET['teeth_input'])) {
+    main_input($_GET['teeth_input']);
+}
+else {
+    echo json_encode(array("message" => "Please provide a proper teeth schema"));
+}
