@@ -1,48 +1,71 @@
 <?php
 
-
-    function right() {
+    function right($tooth_number, $schema) {
         /*"""
         Return the tooth that is just in the right of this object
         """*/
-        if (!$this->schema) {
-            throw new Exception("With no schema it is not possible to call right");
-        }
 
-        foreach (array_values ($this->schema['teeth']) as $i => $tooth) {
-            if ($tooth == self) {
-                if ($i < len($TOOTH_NUMBERS_ISO) - 1) {
-                    return $this->schema['teeth'][$i + 1];
-                }
-                return NULL;
-            }
-        }
+        $position_schema = position_schema($tooth_number);
 
-        return throw new Exception("Tooth not found in this schema.");
+        if($position_schema == 31) {
+            return false;
+        }
+        else {
+            $position_schema = $position_schema + 1;
+
+            $tooth = $GLOBALS['TOOTH_NUMBERS_ISO'][$position_schema];
+            $status = $schema[$tooth];
+
+            return ["status" => $status, "tooth" => $tooth];
+        }
     }
 
-    function left() {
+    function left($tooth_number, $schema) {
         /*"""
         Return the tooth that is just in the left of this object
         """*/
-        if (! $this->schema) {
-            throw new Exception("With no schema it is not possible to call left");
-        }
+        $position_schema = position_schema($tooth_number);
 
-        foreach (array_values ($this->schema['teeth']) as $i => $tooth) {
-            if (tooth == self) {
-                if ($i == 0) {
-                    return NULL;
+        if($position_schema == 0) {
+            return false;
+        }
+        else {
+            $position_schema = $position_schema - 1;
+
+            $tooth = $GLOBALS['TOOTH_NUMBERS_ISO'][$position_schema];
+            $status = $schema[$tooth];
+
+            // return $status;
+            return ["status" => $status, "tooth" => $tooth];
+        }
+    }
+
+
+    function to_be_replaced_count($start, $end, $schema) {
+        /*"""
+        Count how many TBR teeth are in some specific region.
+        """*/
+        $to_be_replaced_count = [];
+
+        // if ($region == NULL)
+        // {
+        //     $region = new Region();
+        //     $region = $region->whole_mouth();
+        // } 0 , 2
+
+        if($start < $end)
+        {
+            foreach($schema as $key => $value) {
+                if(to_be_replaced($value) AND position_schema($key)<= $end) {
+                    array_push($to_be_replaced_count, $value);
                 }
-                return $this->schema['teeth'][$i - 1];
             }
         }
 
-        return throw new Exception("Tooth not found in this schema.");
+        return count($to_be_replaced_count);
     }
 
-    
-    function to_be_replaced($condition) {
+    function to_be_replaced($condition, $tooth_number, $schema) {
         /*"""
         To Be Replaced. This can be:
             a) f
@@ -52,53 +75,56 @@
             e) sw
             f) bw
         """*/
+        if(!$condition) {
+            $condition = '';
+        }
         if ( in_array($condition, ["f", "x", "ew", "sw", "fi", "bw"])) {
             return True;
         }
 
         if ($condition == "b") {
             // If the teeth near to this one is a TBR
-            if (($this->left and $this->left->to_be_treated) or (
-                $this->right and $this->right->to_be_treated
-            )) {
+            if (to_be_treated(left($tooth_number, $schema)['status']) OR
+                to_be_treated(right($tooth_number, $schema)['status'])
+            ) {
                 return True;
             }
 
             // If the teeth near to this one is an "x"
-            if (($this->left and $this->left->condition == "x") or (
-                $this->right and $this->right->condition == "x")) {
+            if (left($tooth_number, $schema)['status'] == "x" OR
+                right($tooth_number, $schema)['status'] == "x") {
                 return True;
             }
 
             // If the teeth near to this one is also a "b" (bridge)
             // and the last "b" is at the side of a TBT
             // Check from the left side
-            $left = $this->left;
+            // $left = $this->left;
 
-            while ($left) {
-                if ($left->condition == "b") {
-                    $left = $left->left;
-                }
-                else if ($left->to_be_treated) {
-                    return True;
-                }
-                else {
-                    break;
-                }
-            }
+            // while ($left) {
+            //     if ($left->condition == "b") {
+            //         $left = $left->left;
+            //     }
+            //     else if ($left->to_be_treated) {
+            //         return True;
+            //     }
+            //     else {
+            //         break;
+            //     }
+            // }
 
-            // Check from the right side
-            $right = $this->right;
+            // // Check from the right side
+            // $right = $this->right;
 
-            while ($right) {
-                if ($right->condition == "b")
-                    $right = $right->right;
-                else if ($right->to_be_treated)
-                    return True;
-                else {
-                    break;
-                }
-            }
+            // while ($right) {
+            //     if ($right->condition == "b")
+            //         $right = $right->right;
+            //     else if ($right->to_be_treated)
+            //         return True;
+            //     else {
+            //         break;
+            //     }
+            // }
         }
 
         return False;
