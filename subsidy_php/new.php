@@ -10,8 +10,8 @@ $TOOTH_NUMBERS_ISO = array(
     41, 42, 43, 44, 45, 46, 47, 48
 );
 
-$front_end = array(18 => '', 17 => '', 16 => '', 15 => '', 14 => '', 13 => '', 12 => 'f', 11 => '',
-    21 => '', 22 => '', 23 => '', 24 => '', 25 => '', 26 => '', 27 => '', 28 => '',
+$front_end = array(18 => 'f', 17 => 'f', 16 => 'f', 15 => 'f', 14 => 'f', 13 => 'f', 12 => 'f', 11 => 'f',
+    21 => 'f', 22 => 'f', 23 => 'f', 24 => 'f', 25 => 'f', 26 => 'f', 27 => 'f', 28 => 'f',
     38 => 'f', 37 => 'f', 36 => '', 35 => '', 34 => '', 33 => '', 32 => '', 31 => '',
     41 => '', 42 => '', 43 => '', 44 => 'f', 45 => 'ww', 46 => 'ww', 47 => 'f', 48 => 'f');
 
@@ -23,7 +23,7 @@ $teeth_inter_dental_gaps = [];
 
 
 // print_r($front_end);
-// main_input($front_end);
+main_input($front_end);
 function main_input($schema) {
 
     global $teeth_with_status, $teeth_region_eveluate, $teeth_subsidy_eveluate;
@@ -94,8 +94,38 @@ function main_input($schema) {
     StatusPwInFrontRegion($schema);
     ToBeTreatedWithNoAbutmentTeethIncluded($schema); //to-do
 
-    // return '';
+    // remove dependencies or duplicates
+    // print_r($teeth_subsidy_eveluate);
+    $remove_subsidies = [];
+
+    for($len=0; $len<count($teeth_subsidy_eveluate); $len++) {
+        // if($teeth_subsidy_eveluate[$len]['subsidy'] == '4.2') {
+        if(startswith($teeth_subsidy_eveluate[$len]['subsidy'], '4')) {
+            for($lenn=0; $lenn<count($teeth_subsidy_eveluate); $lenn++) {
+                //UnilateralFreeEndToBeReplacedTeethAtLeast1_upper
+                // if($teeth_subsidy_eveluate[$lenn]['subsidy'] == '3.1') {
+                if(startswith($teeth_subsidy_eveluate[$lenn]['subsidy'], '3')) {
+                    array_push($remove_subsidies, $lenn);
+                }
+            }
+        }
+    }
+
+    for($rem=0; $rem<count($remove_subsidies); $rem++) {
+        unset($teeth_subsidy_eveluate[$remove_subsidies[$rem]]);
+    }
+
+    $teeth_subsidy_eveluate = array_values(($teeth_subsidy_eveluate));
+
+    echo (get_jaw(15));
+
     echo json_encode($teeth_subsidy_eveluate);
+}
+
+function startswith ($string, $startString) 
+{ 
+    $len = strlen($startString); 
+    return (substr($string, 0, $len) === $startString); 
 }
 
 function sub_array_teeth($start, $end, $size) {
@@ -103,8 +133,6 @@ function sub_array_teeth($start, $end, $size) {
     $teeth_region = array_slice($GLOBALS['teeth_with_status'], $start, $size);
     
     // echo nl2br("\n");
-
-    // var_dump($teeth_region);
 
     if (count($teeth_region) == $size AND end($teeth_region) == $end )
         return TRUE;
@@ -138,7 +166,6 @@ function is_upper_jaw($teeth) {
     }
 }
 
-
 function is_upper_jaw_left_end($teeth) {
     /*"""
     Represent the end region (three last teeth) for the left side of the mouth.
@@ -154,7 +181,6 @@ function is_upper_jaw_left_end($teeth) {
     }
 }
 
-
 function is_upper_jaw_right_end($teeth) {
     /*"""
     Represent the end region (three last teeth) for the right side of the mouth.
@@ -169,7 +195,6 @@ function is_upper_jaw_right_end($teeth) {
         return FALSE;
     }
 }
-
 
 function is_upper_jaw_front($teeth) {
     /*"""
@@ -199,7 +224,6 @@ function is_mandible($teeth) {
     }
 }
 
-
 function is_mandible_left_end($teeth) {
     /*"""
     Represent the end region (three last teeth) for the left side of the mouth.
@@ -215,7 +239,6 @@ function is_mandible_left_end($teeth) {
     }
 }
 
-
 function is_mandible_right_end($teeth) {
     /*"""
     Represent the end region (three last teeth) for the right side of the mouth.
@@ -230,7 +253,6 @@ function is_mandible_right_end($teeth) {
         return FALSE;
     }
 }
-
 
 function is_mandible_front($teeth) {
     /*"""
@@ -283,7 +305,6 @@ function biggest_interdental_gap($teeth_inter_dental_gaps) {
     return max($biggest_interdental_gap);
 }
 
-
 function position_schema($tooth_number) {
     $postition = array_search($tooth_number, $GLOBALS['TOOTH_NUMBERS_ISO'] );
     if(! $postition)
@@ -300,6 +321,20 @@ function position_selected($tooth_number) {
 
 function get_condition($tooth, $schema) {
     return $schema[$tooth];
+}
+
+function get_jaw($tooth) {
+    global $TOOTH_NUMBERS_ISO;
+    $TOOTH_NUMBERS_ISO_UPPER = array_slice($TOOTH_NUMBERS_ISO,0,16);
+    $TOOTH_NUMBERS_ISO_LOWER = array_slice($TOOTH_NUMBERS_ISO,16,32);
+
+    if(in_array($tooth, $TOOTH_NUMBERS_ISO_UPPER)) {
+        return 'upper_jaw';
+    }
+
+    if(in_array($tooth, $TOOTH_NUMBERS_ISO_LOWER)) {
+        return 'lower_jaw';
+    }
 }
 
 
@@ -912,8 +947,9 @@ function ToBeTreatedWithNoAbutmentTeethIncluded($schema) {
             ! to_be_replaced(left($tooth, $schema)['status'], $tooth, $schema)
             )
         ) {
+            $get_jaw = get_jaw($tooth);
             array_push($teeth_subsidy_eveluate, 
-                ["subsidy"=> "1.1", "region"=> "Front Region", "applied_rule"=> "ToBeTreatedWithNoAbutmentTeethIncluded"]
+                ["subsidy"=> "1.1", "region"=> $get_jaw, "applied_rule"=> "ToBeTreatedWithNoAbutmentTeethIncluded"]
             );
         }
     }
