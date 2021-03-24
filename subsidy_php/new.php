@@ -105,16 +105,23 @@ function main_input($schema) {
     for($len=0; $len<count($teeth_subsidy_eveluate); $len++) {
         unset($teeth_subsidy_eveluate[$len]['applied_rule']);
 
-        // if($teeth_subsidy_eveluate[$len]['subsidy'] == '4.2') {
         if(startswith($teeth_subsidy_eveluate[$len]['subsidy'], '4')) {
             for($lenn=0; $lenn<count($teeth_subsidy_eveluate); $lenn++) {
-                //UnilateralFreeEndToBeReplacedTeethAtLeast1_upper
-                // if($teeth_subsidy_eveluate[$lenn]['subsidy'] == '3.1') {
                 if(startswith($teeth_subsidy_eveluate[$lenn]['subsidy'], '3')) {
                     array_push($remove_subsidies, $lenn);
                 }
             }
         }
+        
+        // if( isset($teeth_subsidy_eveluate[$len+1]) AND
+        //     $teeth_subsidy_eveluate[$len]['subsidy'] == $teeth_subsidy_eveluate[$len+1]['subsidy']
+        // ) {
+        //     $teeth_subsidy_eveluate[$len]['region'] = $teeth_subsidy_eveluate[$len]['region'] .', '. $teeth_subsidy_eveluate[$len+1]['region'];
+        //     $teeth_subsidy_eveluate[$len]['quantity'] = $teeth_subsidy_eveluate[$len]['quantity'] + $teeth_subsidy_eveluate[$len+1]['quantity'];
+
+        //     // array_push($remove_subsidies, $len+1);
+        // }
+
     }
 
     for($rem=0; $rem<count($remove_subsidies); $rem++) {
@@ -1030,7 +1037,7 @@ function BilateralFreeEnd_upper($schema, $teeth_with_status) {
         AND $interdental == 0
     ) {
         array_push($teeth_subsidy_eveluate, 
-                ["subsidy"=> "3.2", "region"=> "lower_jaw", "applied_rule"=> "kollateral interdental gap_lower"]
+                ["subsidy"=> "3.2", "region"=> "lower_jaw", "quantity"=> get_jaw($a1[0]), "applied_rule"=> "kollateral interdental gap_lower"]
         );
     }
 
@@ -1163,7 +1170,9 @@ function special_case_b($schema) {
             }
 
             if(to_be_treated(right($teeth, $schema)['status']) OR
-                to_be_treated(left($teeth, $schema)['status'])
+                to_be_treated(left($teeth, $schema)['status']) OR
+                right($teeth, $schema)['status'] == 'pw' OR
+                left($teeth, $schema)['status'] == 'pw'
             ) {
                 array_push($to_be_teated_count, $teeth);
             }
@@ -1182,7 +1191,7 @@ function special_case_b($schema) {
 
     if(count($to_be_replaced_count) + $bs == 1) {
         array_push($teeth_subsidy_eveluate,
-            ["subsidy"=> "2.2", "region"=> "2.x", "jaw"=> get_jaw($to_be_replaced_count[0]), "applied_rule"=> "BiggestInterdentalGapExactToBeReplaced2"]
+            ["subsidy"=> "2.2", "region"=> $to_be_replaced_count[0] - end($to_be_replaced_count), "jaw"=> get_jaw($to_be_replaced_count[0]), "applied_rule"=> "BiggestInterdentalGapExactToBeReplaced2"]
         );
     }
 
@@ -1202,7 +1211,7 @@ function special_case_b($schema) {
 function right_bs($teeth, $schema) {
     $status = '';
     $b = 0;
-    var_dump(right($teeth, $schema)['tooth']);
+    // var_dump(right($teeth, $schema)['tooth']);
 
     if(right($teeth, $schema)['status'] == 'b') {
         $b++;
@@ -1211,7 +1220,7 @@ function right_bs($teeth, $schema) {
     else {
         return ["status" => $status, "bs" => $b];
     }
-    print_r($b);
+    // print_r($b);
 }
 
 function left_bs($teeth, $schema) {
@@ -1396,15 +1405,19 @@ function StatusPwInPosteriorRegion($schema) {
             $teeth == 44 OR $teeth == 45 OR $teeth == 46 OR $teeth == 47 OR $teeth == 48 ) AND
             !to_be_replaced($status, $teeth, $schema)
         ) {
-            array_push($StatusPwInPosteriorRegion, get_condition($teeth, $schema));
+            // array_push($StatusPwInPosteriorRegion, get_condition($teeth, $schema));
+            if(get_condition($teeth, $schema) == 'pw')
+                array_push($StatusPwInPosteriorRegion, $teeth);
         }
     }
 
-    // if (in_array('pw', $StatusPwInPosteriorRegion) AND !subsidy_exists(2.1)) {
-    if (in_array('pw', $StatusPwInPosteriorRegion)) {
-        array_push($teeth_subsidy_eveluate, 
-                ["subsidy"=> "1.2", "region"=> "1.x", "jaw"=> get_jaw(16), "applied_rule"=> "StatusPwInPosteriorRegion"]
-        );
+    if (!subsidy_exists(2.1)) {
+    // if (in_array('pw', $StatusPwInPosteriorRegion)) {
+        for($r=0; $r<count($StatusPwInPosteriorRegion); $r++ ) {
+            array_push($teeth_subsidy_eveluate, 
+                    ["subsidy"=> "1.2", "region"=> $StatusPwInPosteriorRegion[$r].' ', "quantity"=> count($StatusPwInPosteriorRegion), "applied_rule"=> "StatusPwInPosteriorRegion"]
+            );
+        }
     }
 }
 
@@ -1420,15 +1433,17 @@ function StatusPwInFrontRegion($schema) {
         if ($teeth == 13 OR $teeth == 12 OR $teeth == 11 OR $teeth == 21 OR $teeth == 22 OR $teeth == 23 OR
             $teeth == 33 OR $teeth == 32 OR $teeth == 31 OR $teeth == 41 OR $teeth == 42 OR $teeth == 43 
         ) {
-            array_push($StatusPwInFrontRegion, get_condition($teeth, $schema));
-            array_push($region, $teeth);
+            // array_push($StatusPwInFrontRegion, get_condition($teeth, $schema));
+            if(get_condition($teeth, $schema) == 'pw')
+                array_push($StatusPwInFrontRegion, $teeth);
         }
     }
 
+
     // if (in_array('pw', $StatusPwInFrontRegion) AND !subsidy_exists(2.2)) {
-    if (in_array('pw', $StatusPwInFrontRegion) ) {
+    for($r=0; $r<count($StatusPwInFrontRegion); $r++ ) {
         array_push($teeth_subsidy_eveluate, 
-                ["subsidy"=> "1.1", "region"=> $region, "quantity"=> count($region), "applied_rule"=> "StatusPwInFrontRegion"]
+                ["subsidy"=> "1.1", "region"=> $StatusPwInFrontRegion[$r] .' ' , "quantity"=> count($StatusPwInFrontRegion), "applied_rule"=> "StatusPwInFrontRegion"]
         );
     }
 }
@@ -1469,14 +1484,15 @@ function ToBeTreatedWithNoAbutmentTeethIncluded($schema) {
                 (to_be_treated(left($tooth, $schema)['status']) )
                 // ( to_be_treated(right($tooth, $schema)['status']) OR to_be_treated(left($tooth, $schema)['status']) )
             ) {
-                $get_jaw = get_jaw($tooth);
+                // $get_jaw = get_jaw($tooth);
                 // if(subsidy_exists(2.2) OR subsidy_exists(2.3) OR subsidy_exists(1.1))
+                // if(subsidy_exists(2.2) OR subsidy_exists(2.3) OR subsidy_exists_name('StatusPwInPosteriorRegion') OR subsidy_exists_name('StatusPwInFrontRegion'))
                 if(subsidy_exists(2.2) OR subsidy_exists(2.3))
                 {
                     return FALSE;
                 }
                 array_push($teeth_subsidy_eveluate, 
-                    ["subsidy"=> "1.1", "region"=> "1.x", "jaw"=> $get_jaw, "applied_rule"=> "ToBeTreatedWithNoAbutmentTeethIncluded"]
+                    ["subsidy"=> "1.1", "region"=> $tooth, "quantity"=> "1", "applied_rule"=> "ToBeTreatedWithNoAbutmentTeethIncluded"]
                 );
             }
         }
@@ -1522,6 +1538,8 @@ function BiggestInterdentalGapExactToBeReplaced2($schema) {
     if(! is_interdental_gap($schema)) {
         return FALSE;
     }
+
+
 
     if(biggest_interdental_gap($teeth_inter_dental_gaps) == 2) {
         array_push($teeth_subsidy_eveluate, 
