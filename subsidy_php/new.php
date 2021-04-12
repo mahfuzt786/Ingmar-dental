@@ -43,57 +43,67 @@ function main_input($schema) {
     //refine the schema for gap closure
     $schema = gap_closure($schema);
 
-    // Check for teeth nos with a status
-    foreach ($schema as $tooth_number => $status) {
-        // print_r($status);
-        // if($status[1] !== '') {
-        if($status !== '') {
-            array_push($teeth_with_status, intval($tooth_number));
+    // $array1 = array_slice($schema, 0, 16);
+    // $array2 = array_slice($schema, 16, 16);
+    $chunks = array_chunk($schema, ceil(count($schema) / 2), true);
+    // var_dump($chunks);
+    // var_dump(count($chunks));
+
+    for ($in=0; $in<count($chunks); $in++)
+    {
+        $schema = $chunks[$in];
+        // Check for teeth nos with a status
+        foreach ($schema as $tooth_number => $status) {
+            // print_r($status);
+            // if($status[1] !== '') {
+            if($status !== '') {
+                array_push($teeth_with_status, intval($tooth_number));
+            }
+            
         }
-        
+
+        is_whole_mouth($teeth_with_status);
+        is_upper_jaw($teeth_with_status);
+        is_upper_jaw_left_end($teeth_with_status);
+        is_upper_jaw_right_end($teeth_with_status);
+        is_upper_jaw_front($teeth_with_status);
+        is_mandible($teeth_with_status);
+        is_mandible_left_end($teeth_with_status);
+        is_mandible_right_end($teeth_with_status);
+        is_mandible_front($teeth_with_status);
+        is_X7_X8($teeth_with_status);
+        atleastOneInPostRegion($teeth_with_status);
+
+        /** Execute the rules **/
+        //4.x
+        Exact16ToBeReplacedTeeth_upper($schema);
+        Exact16ToBeReplacedTeeth_mandible($schema);
+        Between13And15ToBeReplacedTeeth_upper($schema);
+        Between13And15ToBeReplacedTeeth_mandible($schema);
+
+        //3.x
+        Between5And12ToBeReplacedTeeth_upper($schema);
+        Between5And12ToBeReplacedTeeth_mandible($schema);
+        BilateralFreeEnd_upper($schema, $teeth_with_status);
+        BilateralFreeEnd_mandible($schema, $teeth_with_status);
+        UnilateralFreeEndToBeReplacedTeethAtLeast1_upper($schema);
+        UnilateralFreeEndToBeReplacedTeethAtLeast1_mandible($schema);
+        special_ob_f($schema);
+        special_case_b($schema);
+
+        // 2.x
+        BiggestInterdentalGapInFrontRegionExactToBeReplaced4($schema);
+        BiggestInterdentalGapExactToBeReplaced3($schema);
+        BiggestInterdentalGapExactToBeReplaced2($schema);
+        BiggestInterdentalGapExactToBeReplaced1($schema);
+        Exact1ToBeReplacedTeethInterdentalGapInFrontRegion($schema);
+        Exact2_3ToBeReplacedTeethInterdentalGapInFrontRegion($schema);
+
+        //1.x
+        StatusPwInPosteriorRegion($schema);
+        StatusPwInFrontRegion($schema);
+        ToBeTreatedWithNoAbutmentTeethIncluded($schema);
     }
-
-    is_whole_mouth($teeth_with_status);
-    is_upper_jaw($teeth_with_status);
-    is_upper_jaw_left_end($teeth_with_status);
-    is_upper_jaw_right_end($teeth_with_status);
-    is_upper_jaw_front($teeth_with_status);
-    is_mandible($teeth_with_status);
-    is_mandible_left_end($teeth_with_status);
-    is_mandible_right_end($teeth_with_status);
-    is_mandible_front($teeth_with_status);
-    is_X7_X8($teeth_with_status);
-    atleastOneInPostRegion($teeth_with_status);
-
-    /** Execute the rules **/
-    //4.x
-    Exact16ToBeReplacedTeeth_upper($schema);
-    Exact16ToBeReplacedTeeth_mandible($schema);
-    Between13And15ToBeReplacedTeeth_upper($schema);
-    Between13And15ToBeReplacedTeeth_mandible($schema);
-
-    //3.x
-    Between5And12ToBeReplacedTeeth_upper($schema);
-    Between5And12ToBeReplacedTeeth_mandible($schema);
-    BilateralFreeEnd_upper($schema, $teeth_with_status);
-    BilateralFreeEnd_mandible($schema, $teeth_with_status);
-    UnilateralFreeEndToBeReplacedTeethAtLeast1_upper($schema);
-    UnilateralFreeEndToBeReplacedTeethAtLeast1_mandible($schema);
-    special_ob_f($schema);
-    special_case_b($schema);
-
-    // 2.x
-    BiggestInterdentalGapInFrontRegionExactToBeReplaced4($schema);
-    BiggestInterdentalGapExactToBeReplaced3($schema);
-    BiggestInterdentalGapExactToBeReplaced2($schema);
-    BiggestInterdentalGapExactToBeReplaced1($schema);
-    Exact1ToBeReplacedTeethInterdentalGapInFrontRegion($schema);
-    Exact2_3ToBeReplacedTeethInterdentalGapInFrontRegion($schema);
-
-    //1.x
-    StatusPwInPosteriorRegion($schema);
-    StatusPwInFrontRegion($schema);
-    ToBeTreatedWithNoAbutmentTeethIncluded($schema);
 
     // remove dependencies or duplicates
     // print_r($teeth_subsidy_eveluate);
@@ -118,16 +128,13 @@ function main_input($schema) {
 
     $teeth_subsidy_eveluate = array_values(($teeth_subsidy_eveluate));
 
-
-    // $array = json_decode($teeth_subsidy_eveluate,true);
-
     $final = [];
 
     foreach($teeth_subsidy_eveluate as $arr){
         
         $final[$arr['subsidy']]['subsidy'] = $arr['subsidy'];
-        $final[$arr['subsidy']]['region'] = (isset($final[$arr['subsidy']]['region'])) ? $final[$arr['subsidy']]['region'].','. $arr['region'] : $arr['region'];
-        $final[$arr['subsidy']]['quantity'] = (isset($final[$arr['subsidy']]['quantity'])) ?  $final[$arr['subsidy']]['quantity']+ $arr['quantity'] : $arr['quantity'];
+        $final[$arr['subsidy']]['region'] = (isset($final[$arr['subsidy']]['region']) AND ($final[$arr['subsidy']]['region'] !== $arr['region'])) ? $final[$arr['subsidy']]['region'].','. $arr['region'] : $arr['region'];
+        $final[$arr['subsidy']]['quantity'] = (isset($final[$arr['subsidy']]['quantity']) AND ($final[$arr['subsidy']]['region'] !== $arr['region'])) ?  $final[$arr['subsidy']]['quantity']+ $arr['quantity'] : $arr['quantity'];
     }
 
     echo json_encode(array_values($final));
@@ -453,9 +460,15 @@ function is_neighbor_gap($tooth_number, $schema) {
         $neighbour_gap = 2;
     }
 
+    if( $neighbour_gap == 1 AND
+        ($right['status'] !== '' OR
+        $left['status'] !== '')
+    ) {
+        $neighbour_gap = 3;
+    }
+
     return $neighbour_gap;
 }
-
 
 
 
@@ -1551,7 +1564,7 @@ function StatusPwInFrontRegion($schema) {
     // if (in_array('pw', $StatusPwInFrontRegion) AND !subsidy_exists(2.2)) {
     for($r=0; $r<count($StatusPwInFrontRegion); $r++ ) {
         array_push($teeth_subsidy_eveluate, 
-                ["subsidy"=> "1.1", "region"=> $StatusPwInFrontRegion[$r] .' ' , "quantity"=> count($StatusPwInFrontRegion), "applied_rule"=> "StatusPwInFrontRegion"]
+                ["subsidy"=> "1.1", "region"=> $StatusPwInFrontRegion[$r] .' ' , "quantity"=> "1", "applied_rule"=> "StatusPwInFrontRegion"]
         );
     }
 }
@@ -1579,7 +1592,7 @@ function ToBeTreatedWithNoAbutmentTeethIncluded($schema) {
                 $get_jaw = get_jaw($tooth);
                 if(subsidy_exists(2.1))
                 {
-                    return FALSE;
+                    // return FALSE;
                 }
 
                 $pos_sch_right = position_schema($tooth);
@@ -1598,7 +1611,7 @@ function ToBeTreatedWithNoAbutmentTeethIncluded($schema) {
 
             // }
             else if( (right($tooth, $schema)['status'] == '' AND left($tooth, $schema)['status'] == '') OR
-                (to_be_treated(left($tooth, $schema)['status']) OR left($tooth, $schema)['status'] == 'pw')
+                to_be_treated(left($tooth, $schema)['status']) OR left($tooth, $schema)['status'] == 'pw'
                 // ( to_be_treated(right($tooth, $schema)['status']) OR to_be_treated(left($tooth, $schema)['status']) )
             ) {
                 // $get_jaw = get_jaw($tooth);
@@ -1612,7 +1625,7 @@ function ToBeTreatedWithNoAbutmentTeethIncluded($schema) {
                 );
             }
             else if( (right($tooth, $schema)['status'] == '' AND left($tooth, $schema)['status'] == '') OR
-                (to_be_treated(right($tooth, $schema)['status']) OR right($tooth, $schema)['status'] == 'pw' )
+                to_be_treated(right($tooth, $schema)['status']) OR right($tooth, $schema)['status'] == 'pw'
                 // ( to_be_treated(right($tooth, $schema)['status']) OR to_be_treated(left($tooth, $schema)['status']) )
             ) {
                 // $get_jaw = get_jaw($tooth);
