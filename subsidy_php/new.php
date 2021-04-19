@@ -1288,6 +1288,12 @@ function special_case_b($schema) {
         }
     }
 
+    if(count($to_be_replaced_count) == 0 AND count($bs_array) > 0)
+    {
+        $pos_sch_right  = end($bs_array) + 1;
+        $pos_sch        = $bs_array[0] - 1;
+    }
+
     if(count($to_be_replaced_count) + $bs == 1) {
         array_push($teeth_subsidy_eveluate,
             ["subsidy"=> "2.2", "region"=> $TOOTH_NUMBERS_ISO[$pos_sch] .'-'. $TOOTH_NUMBERS_ISO[$pos_sch_right], "quantity"=> "1", "applied_rule"=> "BiggestInterdentalGapExactToBeReplaced2"]
@@ -1596,12 +1602,13 @@ function ToBeTreatedWithNoAbutmentTeethIncluded($schema) {
              to_be_replaced(left($tooth, $schema)['status'], $tooth, $schema)) AND
              (right(right($tooth, $schema)['tooth'], $schema)['status'] == '' AND
              left(left($tooth, $schema)['tooth'], $schema)['status'] == '') AND !subsidy_exists_name('BiggestInterdentalGapExactToBeReplaced=3')
+             AND !subsidy_exists(2.1)
             ) {
                 $get_jaw = get_jaw($tooth);
-                if(subsidy_exists(2.1))
-                {
+                // if(subsidy_exists(2.1))
+                // {
                     // return FALSE;
-                }
+                // }
 
                 $pos_sch_right = position_schema($tooth);
                 $pos_sch       = position_schema($tooth) - 2;
@@ -1623,7 +1630,7 @@ function ToBeTreatedWithNoAbutmentTeethIncluded($schema) {
             }
             else if( ((right($tooth, $schema)['status'] == '' AND left($tooth, $schema)['status'] == '') OR
                 (to_be_treated(left($tooth, $schema)['status']) OR left($tooth, $schema)['status'] == 'pw')) AND
-                !to_be_replaced(left($tooth, $schema)['status'], $tooth, $schema)
+                !to_be_replaced(right($tooth, $schema)['status'], $tooth, $schema)
                 // ( to_be_treated(right($tooth, $schema)['status']) OR to_be_treated(left($tooth, $schema)['status']) )
             ) {
                 // $get_jaw = get_jaw($tooth);
@@ -1638,7 +1645,7 @@ function ToBeTreatedWithNoAbutmentTeethIncluded($schema) {
             }
             else if( ((right($tooth, $schema)['status'] == '' AND left($tooth, $schema)['status'] == '') OR
                 (to_be_treated(right($tooth, $schema)['status']) OR right($tooth, $schema)['status'] == 'pw')) AND
-                !to_be_replaced(right($tooth, $schema)['status'], $tooth, $schema)
+                !to_be_replaced(left($tooth, $schema)['status'], $tooth, $schema)
                 // ( to_be_treated(right($tooth, $schema)['status']) OR to_be_treated(left($tooth, $schema)['status']) )
             ) {
                 // $get_jaw = get_jaw($tooth);
