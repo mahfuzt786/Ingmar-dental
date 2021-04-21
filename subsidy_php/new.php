@@ -130,7 +130,7 @@ function main_input($schema) {
     
     /** add venerring Grant start **/
     foreach($teeth_subsidy_eveluate as $arr) {
-    
+        
     }
     /** add venerring Grant end **/
 
@@ -450,9 +450,6 @@ function atleastOneInPostRegion($schema) {
         }
     } 
 
-    // var_dump($in_posterior);
-
-    
     if(count($in_posterior) > 0 )
     {
         array_push($teeth_region_eveluate, 'atleastOneInPostRegion');
@@ -492,6 +489,17 @@ function is_neighbor_gap($tooth_number, $schema) {
     // }
 
     return $neighbour_gap;
+}
+
+function veneering_grants($tooth_number) {
+    $veneering_grants = false;
+
+    if( in_array($tooth_number, [15,14,13,12,11,21,22,23,24,25,34,33,32,31,41,42,43,44]) ) {
+        $veneering_grants = true;
+    }
+
+    return $veneering_grants;
+
 }
 
 
@@ -716,6 +724,14 @@ function Between13And15ToBeReplacedTeeth_upper($schema) {
                 ["subsidy"=> "4.6", "region"=> $remaining, "quantity"=> count($remaining), "applied_rule"=> "Between13And15ToBeReplacedTeeth_upper"]
         );
 
+        for($x=0; $x<count($remaining); $x++) {
+            if( veneering_grants($remaining[$x]) ){
+                array_push($teeth_subsidy_eveluate, 
+                    ["subsidy"=> "4.7", "region"=> $remaining[$x], "quantity"=> "1", "applied_rule"=> "veneering_grants"]
+                );
+            }
+        }
+
         return True;
     }
 }
@@ -748,6 +764,14 @@ function Between13And15ToBeReplacedTeeth_mandible($schema) {
         array_push($teeth_subsidy_eveluate, 
                 ["subsidy"=> "4.6", "region"=> $remaining, "quantity"=> count($remaining), "applied_rule"=> "Between13And15ToBeReplacedTeeth_upper"]
         );
+
+        for($x=0; $x<count($remaining); $x++) {
+            if( veneering_grants($remaining[$x]) ){
+                array_push($teeth_subsidy_eveluate, 
+                    ["subsidy"=> "4.7", "region"=> $remaining[$x], "quantity"=> "1", "applied_rule"=> "veneering_grants"]
+                );
+            }
+        }
 
         return True;
     }
@@ -1587,6 +1611,11 @@ function StatusPwInFrontRegion($schema) {
         array_push($teeth_subsidy_eveluate, 
                 ["subsidy"=> "1.1", "region"=> $StatusPwInFrontRegion[$r] .' ' , "quantity"=> "1", "applied_rule"=> "StatusPwInFrontRegion"]
         );
+        if( veneering_grants($StatusPwInFrontRegion[$r]) ){
+            array_push($teeth_subsidy_eveluate, 
+                ["subsidy"=> "1.3", "region"=> $StatusPwInFrontRegion[$r], "quantity"=> "1", "applied_rule"=> "veneering_grants"]
+            );
+        }
     }
 }
 
@@ -1634,6 +1663,11 @@ function ToBeTreatedWithNoAbutmentTeethIncluded($schema) {
                 array_push($teeth_subsidy_eveluate, 
                     ["subsidy"=> "1.1", "region"=> $tooth, "quantity"=> "1", "applied_rule"=> "ToBeTreatedWithNoAbutmentTeethIncluded"]
                 );
+                if( veneering_grants($tooth) ){
+                    array_push($teeth_subsidy_eveluate, 
+                        ["subsidy"=> "1.3", "region"=> $tooth, "quantity"=> "1", "applied_rule"=> "veneering_grants"]
+                    );
+                }
             }
             else if( ((right($tooth, $schema)['status'] == '' AND left($tooth, $schema)['status'] == '') OR
                 (to_be_treated(left($tooth, $schema)['status']) OR left($tooth, $schema)['status'] == 'pw')) AND
@@ -1649,6 +1683,11 @@ function ToBeTreatedWithNoAbutmentTeethIncluded($schema) {
                 array_push($teeth_subsidy_eveluate, 
                     ["subsidy"=> "1.1", "region"=> $tooth, "quantity"=> "1", "applied_rule"=> "ToBeTreatedWithNoAbutmentTeethIncluded"]
                 );
+                if( veneering_grants($tooth) ){
+                    array_push($teeth_subsidy_eveluate, 
+                        ["subsidy"=> "1.3", "region"=> $tooth, "quantity"=> "1", "applied_rule"=> "veneering_grants"]
+                    );
+                }
             }
             else if( ((right($tooth, $schema)['status'] == '' AND left($tooth, $schema)['status'] == '') OR
                 (to_be_treated(right($tooth, $schema)['status']) OR right($tooth, $schema)['status'] == 'pw')) AND
@@ -1665,6 +1704,11 @@ function ToBeTreatedWithNoAbutmentTeethIncluded($schema) {
                 array_push($teeth_subsidy_eveluate, 
                     ["subsidy"=> "1.1", "region"=> $tooth, "quantity"=> "1", "applied_rule"=> "ToBeTreatedWithNoAbutmentTeethIncluded"]
                 );
+                if( veneering_grants($tooth) ){
+                    array_push($teeth_subsidy_eveluate, 
+                        ["subsidy"=> "1.3", "region"=> $tooth, "quantity"=> "1", "applied_rule"=> "veneering_grants"]
+                    );
+                }
             }
         }
     }
