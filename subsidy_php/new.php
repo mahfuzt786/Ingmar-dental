@@ -74,6 +74,7 @@ function main_input($schema) {
         is_mandible_front($teeth_with_status);
         is_X7_X8($schema);
         atleastOneInPostRegion($schema);
+        inAnteriorRegion($schema);
 
         /** Execute the rules **/
         //4.x
@@ -97,7 +98,6 @@ function main_input($schema) {
         BiggestInterdentalGapExactToBeReplaced3($schema);
         BiggestInterdentalGapExactToBeReplaced2($schema);
         BiggestInterdentalGapExactToBeReplaced1($schema);
-        // Exact1ToBeReplacedTeethInterdentalGapInFrontRegion($schema); // moved to below 2_3
         Exact2_3ToBeReplacedTeethInterdentalGapInFrontRegion($schema);
         Exact1ToBeReplacedTeethInterdentalGapInFrontRegion($schema);
 
@@ -148,8 +148,6 @@ function main_input($schema) {
             }
         }
 
-        // var_dump($teeth_with_status_old);
-
         // if(get_condition(end($teeth_with_status_old), $schema_old) !== ')(' 
             ////AND count($is_gap_closure_arr) !== 1
         // )
@@ -184,20 +182,69 @@ function main_input($schema) {
                 
                 for($gap=0; $gap<count($is_gap_closure_arr); $gap++) {
 
-                    if( ($is_gap_closure_arr[$gap] == '15' OR $is_gap_closure_arr[$gap] == '25' 
-                            OR $is_gap_closure_arr[$gap] == '34' OR $is_gap_closure_arr[$gap] == '44')
-                        // AND to_be_treated(get_condition($is_gap_closure_arr[$gap]+1, $schema_old))
+                    // if( ($is_gap_closure_arr[$gap] == '15' OR $is_gap_closure_arr[$gap] == '25' 
+                    //         OR $is_gap_closure_arr[$gap] == '34' OR $is_gap_closure_arr[$gap] == '44')
+                    //     AND to_be_treated(get_condition($is_gap_closure_arr[$gap], $schema_old))
+                    //     AND subsidy_exists(1)
+                    // ) {
+                    //     array_push($teeth_subsidy_eveluate, 
+                    //         // ["subsidy"=> "1.3", "output_order"=> "17", "region"=> $is_gap_closure_arr[$gap], "quantity"=> "1", "applied_rule"=> "veneering_grants 12 edit"]
+                    //         ["subsidy"=> "1.3", "output_order"=> "17", "region"=> $is_gap_closure_arr[$gap], "quantity"=> "1", "applied_rule"=> "veneering_grants 12 edit"]
+                    //     );
+                    // }
+                    
+                    if( ($is_gap_closure_arr[$gap] == '15'
+                            OR in_array('15', $new_arr_gap) )
+                        AND (to_be_replaced(get_condition($is_gap_closure_arr[$gap]+1, $schema_old), $is_gap_closure_arr[$gap], $schema_old)
+                                OR to_be_treated(get_condition($is_gap_closure_arr[$gap]+1, $schema_old)))
                         AND subsidy_exists(1)
                     ) {
                         array_push($teeth_subsidy_eveluate, 
-                            ["subsidy"=> "1.3", "output_order"=> "17", "region"=> $is_gap_closure_arr[$gap], "quantity"=> "1", "applied_rule"=> "veneering_grants 12 edit"]
+                            // ["subsidy"=> "1.3", "output_order"=> "17", "region"=> $is_gap_closure_arr[$gap], "quantity"=> "1", "applied_rule"=> "veneering_grants 12 edit"]
+                            ["subsidy"=> "1.3", "output_order"=> "17", "region"=> "16", "quantity"=> "1", "applied_rule"=> "veneering_grants 12 edit"]
                         );
                     }
 
-                    if( ($is_gap_closure_arr[$gap] == '15' OR $is_gap_closure_arr[$gap] == '25' 
-                            OR $is_gap_closure_arr[$gap] == '34' OR $is_gap_closure_arr[$gap] == '44'
+                    if( ($is_gap_closure_arr[$gap] == '25'
+                            OR in_array('25', $new_arr_gap)  )
+                        AND (to_be_replaced(get_condition($is_gap_closure_arr[$gap]+1, $schema_old), $is_gap_closure_arr[$gap], $schema_old)
+                                OR to_be_treated(get_condition($is_gap_closure_arr[$gap]+1, $schema_old)))
+                        AND subsidy_exists(1)
+                    ) {
+                        array_push($teeth_subsidy_eveluate, 
+                            // ["subsidy"=> "1.3", "output_order"=> "17", "region"=> $is_gap_closure_arr[$gap], "quantity"=> "1", "applied_rule"=> "veneering_grants 12 edit"]
+                            ["subsidy"=> "1.3", "output_order"=> "17", "region"=> "26", "quantity"=> "1", "applied_rule"=> "veneering_grants 12 edit"]
+                        );
+                    }
+
+                    if( ($is_gap_closure_arr[$gap] == '34'
+                            OR in_array('34', $new_arr_gap)  )
+                        AND (to_be_replaced(get_condition($is_gap_closure_arr[$gap]+1, $schema_old), $is_gap_closure_arr[$gap], $schema_old)
+                                OR to_be_treated(get_condition($is_gap_closure_arr[$gap]+1, $schema_old)))
+                        AND subsidy_exists(1)
+                    ) {
+                        array_push($teeth_subsidy_eveluate, 
+                            // ["subsidy"=> "1.3", "output_order"=> "17", "region"=> $is_gap_closure_arr[$gap], "quantity"=> "1", "applied_rule"=> "veneering_grants 12 edit"]
+                            ["subsidy"=> "1.3", "output_order"=> "17", "region"=> "35", "quantity"=> "1", "applied_rule"=> "veneering_grants 12 edit"]
+                        );
+                    }
+
+                    if( ($is_gap_closure_arr[$gap] == '44'
+                            OR in_array('44', $new_arr_gap)  )
+                        AND (to_be_replaced(get_condition($is_gap_closure_arr[$gap]+1, $schema_old), $is_gap_closure_arr[$gap], $schema_old)
+                                OR to_be_treated(get_condition($is_gap_closure_arr[$gap]+1, $schema_old)))
+                        AND subsidy_exists(1)
+                    ) {
+                        array_push($teeth_subsidy_eveluate, 
+                            // ["subsidy"=> "1.3", "output_order"=> "17", "region"=> $is_gap_closure_arr[$gap], "quantity"=> "1", "applied_rule"=> "veneering_grants 12 edit"]
+                            ["subsidy"=> "1.3", "output_order"=> "17", "region"=> "45", "quantity"=> "1", "applied_rule"=> "veneering_grants 12 edit"]
+                        );
+                    }
+
+                    if( ($is_gap_closure_arr[$gap] == '15'
                             OR in_array('15', $new_arr_gap)  )
-                        // AND to_be_replaced(get_condition($is_gap_closure_arr[$gap]+1, $schema_old), $is_gap_closure_arr[$gap], $schema_old)
+                        AND (to_be_replaced(get_condition($is_gap_closure_arr[$gap]+1, $schema_old), $is_gap_closure_arr[$gap], $schema_old)
+                                OR to_be_treated(get_condition($is_gap_closure_arr[$gap]+1, $schema_old)))
                         AND subsidy_exists(2)
                     ) {
                         array_push($teeth_subsidy_eveluate, 
@@ -205,20 +252,53 @@ function main_input($schema) {
                             ["subsidy"=> "2.7", "output_order"=> "15", "region"=> '16', "quantity"=> "1", "applied_rule"=> "veneering_grants 2.7 edit"]
                         );
                     }
-                    
 
+                    if( ($is_gap_closure_arr[$gap] == '25'
+                            OR in_array('25', $new_arr_gap)  )
+                        AND (to_be_replaced(get_condition($is_gap_closure_arr[$gap]+1, $schema_old), $is_gap_closure_arr[$gap], $schema_old)
+                                OR to_be_treated(get_condition($is_gap_closure_arr[$gap]+1, $schema_old)))
+                        AND subsidy_exists(2)
+                    ) {
+                        array_push($teeth_subsidy_eveluate, 
+                            //["subsidy"=> "2.7", "output_order"=> "15", "region"=> $is_gap_closure_arr[$gap], "quantity"=> "1", "applied_rule"=> "veneering_grants 2.7 edit"]
+                            ["subsidy"=> "2.7", "output_order"=> "15", "region"=> '26', "quantity"=> "1", "applied_rule"=> "veneering_grants 2.7 edit"]
+                        );
+                    }
+
+                    if( ($is_gap_closure_arr[$gap] == '34'
+                            OR in_array('34', $new_arr_gap)  )
+                        AND (to_be_replaced(get_condition($is_gap_closure_arr[$gap]+1, $schema_old), $is_gap_closure_arr[$gap], $schema_old)
+                                OR to_be_treated(get_condition($is_gap_closure_arr[$gap]+1, $schema_old)))
+                        AND subsidy_exists(2)
+                    ) {
+                        array_push($teeth_subsidy_eveluate, 
+                            //["subsidy"=> "2.7", "output_order"=> "15", "region"=> $is_gap_closure_arr[$gap], "quantity"=> "1", "applied_rule"=> "veneering_grants 2.7 edit"]
+                            ["subsidy"=> "2.7", "output_order"=> "15", "region"=> '35', "quantity"=> "1", "applied_rule"=> "veneering_grants 2.7 edit"]
+                        );
+                    }
+
+                    if( ($is_gap_closure_arr[$gap] == '44'
+                            OR in_array('44', $new_arr_gap)  )
+                        AND (to_be_replaced(get_condition($is_gap_closure_arr[$gap]+1, $schema_old), $is_gap_closure_arr[$gap], $schema_old)
+                                OR to_be_treated(get_condition($is_gap_closure_arr[$gap]+1, $schema_old)))
+                        AND subsidy_exists(2)
+                    ) {
+                        array_push($teeth_subsidy_eveluate, 
+                            //["subsidy"=> "2.7", "output_order"=> "15", "region"=> $is_gap_closure_arr[$gap], "quantity"=> "1", "applied_rule"=> "veneering_grants 2.7 edit"]
+                            ["subsidy"=> "2.7", "output_order"=> "15", "region"=> '45', "quantity"=> "1", "applied_rule"=> "veneering_grants 2.7 edit"]
+                        );
+                    }
+                    
                     if(array_key_exists($is_gap_closure_arr[$gap], $schema_old) 
                         // AND in_array($is_gap_closure_arr[$gap], $new_arr_gap) 
                         AND to_be_replaced(get_condition($TOOTH_NUMBERS_ISO[position_schema($is_gap_closure_arr[$gap])+1], $schema_old), $is_gap_closure_arr[$gap], $schema_old)
                     ) {
-
                         for($iter=0; $iter<count($teeth_subsidy_eveluate); $iter++) {
                             if(strpos($teeth_subsidy_eveluate[$iter]['region'], '-')
                             ) {
-                                // $teeth_subsidy_eveluate[$iter]['region'] = $TOOTH_NUMBERS_ISO[position_schema($new_arr_gap[0])].'-'.$TOOTH_NUMBERS_ISO[position_schema(end($new_arr_gap))+1];
                                 $teeth_subsidy_eveluate[$iter]['region'] = $TOOTH_NUMBERS_ISO[position_schema($new_arr_gap[0])].'-'.$TOOTH_NUMBERS_ISO[position_schema(end($new_arr_gap))];
                             }
-                            else {
+                            else { 
                                 if($teeth_subsidy_eveluate[$iter]['region'] == $is_gap_closure_arr[$gap]) 
                                 {
                                     // $teeth_subsidy_eveluate[$iter]['region'] = $TOOTH_NUMBERS_ISO[position_schema($new_arr_gap[0])].','.$TOOTH_NUMBERS_ISO[position_schema(end($new_arr_gap))+1];
@@ -230,7 +310,6 @@ function main_input($schema) {
 
                     if(get_condition($TOOTH_NUMBERS_ISO[position_schema($is_gap_closure_arr[$gap])+1], $schema_old) == '' ) {
                         for($iter=0; $iter<count($teeth_subsidy_eveluate); $iter++) {
-
                             if(strpos($teeth_subsidy_eveluate[$iter]['region'], '-')
                                 // AND get_condition($TOOTH_NUMBERS_ISO[position_schema(end($teeth_with_status_old))], $schema_old) !== ')('
                             ) {
@@ -244,51 +323,55 @@ function main_input($schema) {
                                     }
                                 }
 
-                                if($is_greater > 0
-                                    AND count($is_gap_closure_arr) !== 1
-                                ) {
-                                    // $teeth_subsidy_eveluate[$iter]['region'] = $TOOTH_NUMBERS_ISO[position_schema($new_arr_gap[0])+$is_greater].'-'.$TOOTH_NUMBERS_ISO[position_schema(end($new_arr_gap))+1+$is_greater];
-                                    $teeth_subsidy_eveluate[$iter]['region'] = $TOOTH_NUMBERS_ISO[position_schema($new_arr_gap[0])+$is_greater].'-'.$TOOTH_NUMBERS_ISO[position_schema(end($new_arr_gap))+$is_greater];
+                                $teeth_subsidy_eveluate[$iter]['region'] = $TOOTH_NUMBERS_ISO[position_schema($new_arr_gap[0])].'-'.$TOOTH_NUMBERS_ISO[position_schema(end($new_arr_gap))+$is_greater];
 
-                                }
+                                // if($is_greater > 0
+                                //     AND count($is_gap_closure_arr) !== 1
+                                // ) {
+                                //     $teeth_subsidy_eveluate[$iter]['region'] = $TOOTH_NUMBERS_ISO[position_schema($new_arr_gap[0])+$is_greater].'-'.$TOOTH_NUMBERS_ISO[position_schema(end($new_arr_gap))+$is_greater];
+                                // }
 
-                                if($is_greater > 0
-                                    AND count($is_gap_closure_arr) == 1
-                                ) {
-                                    // $teeth_subsidy_eveluate[$iter]['region'] = $TOOTH_NUMBERS_ISO[position_schema($new_arr_gap[0])+$is_greater].'-'.$TOOTH_NUMBERS_ISO[position_schema(end($new_arr_gap))+$is_greater];
-                                    $teeth_subsidy_eveluate[$iter]['region'] = $TOOTH_NUMBERS_ISO[position_schema($new_arr_gap[0])+$is_greater].'-'.$TOOTH_NUMBERS_ISO[position_schema(end($new_arr_gap))];
-                                }
+                                // if($is_greater > 0
+                                //     AND count($is_gap_closure_arr) == 1
+                                // ) {
+                                //     $teeth_subsidy_eveluate[$iter]['region'] = $TOOTH_NUMBERS_ISO[position_schema($new_arr_gap[0])+$is_greater].'-'.$TOOTH_NUMBERS_ISO[position_schema(end($new_arr_gap))];
+                                // }
                             }
                             else {
-                                // if($teeth_subsidy_eveluate[$iter]['region'] !== $is_gap_closure_arr[$gap])
-                                if(is_numeric($teeth_subsidy_eveluate[$iter]['region']) AND
-                                    to_be_treated(get_condition($teeth_subsidy_eveluate[$iter]['region']+1, $schema_old))
-                                ) {
-                                    $teeth_subsidy_eveluate[$iter]['region'] = $TOOTH_NUMBERS_ISO[position_schema(end($new_arr_gap))+1];
-                                }
-                                else {
-                                    // $teeth_subsidy_eveluate[$iter]['region'] .= ','. $TOOTH_NUMBERS_ISO[position_schema(end($new_arr_gap))+1];
-                                    $teeth_subsidy_eveluate[$iter]['region'] .= ','. $TOOTH_NUMBERS_ISO[position_schema(end($new_arr_gap))+count($is_gap_closure_arr)-1];
-                                }
+                                if(count($new_arr_gap) > 1) {
+                                    if(is_numeric($teeth_subsidy_eveluate[$iter]['region']) AND
+                                        to_be_treated(get_condition($teeth_subsidy_eveluate[$iter]['region']+1, $schema_old))
+                                    ) {
+                                        $teeth_subsidy_eveluate[$iter]['region'] = $TOOTH_NUMBERS_ISO[position_schema(end($new_arr_gap))+1];
+                                    }
+                                    else {
+                                        // $teeth_subsidy_eveluate[$iter]['region'] .= ','. $TOOTH_NUMBERS_ISO[position_schema(end($new_arr_gap))+1];
+                                        $teeth_subsidy_eveluate[$iter]['region'] .= ','. $TOOTH_NUMBERS_ISO[position_schema(end($new_arr_gap))+count($is_gap_closure_arr)-1];
+                                    }
+                                }                                
                             }
                         }
                     }
                 }
                 
+                // removes )( values from output
                 $temp_arr_2 =[];
                 for($iter=0; $iter<count($teeth_subsidy_eveluate); $iter++) {
-                    if(! strpos($teeth_subsidy_eveluate[$iter]['region'], '-') )
+                    if(! strpos($teeth_subsidy_eveluate[$iter]['region'], '-') 
+                        AND count($new_arr_gap) > 1)
                     {
                         $teeth_subsidy_eveluate[$iter]['region'] = array_values(array_unique(explode(',' ,$teeth_subsidy_eveluate[$iter]['region'])));
-
+                        // var_dump($teeth_subsidy_eveluate[$iter]['region']);
                         for($z=0; $z<count($teeth_subsidy_eveluate[$iter]['region']); $z++) {
                             if(!in_array($teeth_subsidy_eveluate[$iter]['region'][$z], $is_gap_closure_arr) 
                             ) {
+                        // var_dump($teeth_subsidy_eveluate[$iter]['region'][$z]);
+
                                 array_push($temp_arr_2, $teeth_subsidy_eveluate[$iter]['region'][$z]);
                             }
                         }
 
-                        $temp_arr_2 = array_unique($temp_arr_2);
+                        $temp_arr_2 = array_unique(array_filter($temp_arr_2));
 
                         $teeth_subsidy_eveluate[$iter]['region'] = implode(',', $temp_arr_2);
                     }
@@ -304,7 +387,7 @@ function main_input($schema) {
         
         $final[$arr['subsidy']]['subsidy'] = $arr['subsidy'];
         
-        $final[$arr['subsidy']]['region'] = (isset($final[$arr['subsidy']]['region']) AND ($final[$arr['subsidy']]['region'] !== $arr['region']) ) ? $final[$arr['subsidy']]['region'].','. $arr['region'] : $arr['region'];
+        $final[$arr['subsidy']]['region'] = (isset($final[$arr['subsidy']]['region']) AND ($final[$arr['subsidy']]['region'] !== '') ) ? $final[$arr['subsidy']]['region'].','. $arr['region'] : $arr['region'];
         
         $final[$arr['subsidy']]['quantity'] = (isset($final[$arr['subsidy']]['quantity']) AND ($final[$arr['subsidy']]['region'] !== $arr['region'])) ?  $final[$arr['subsidy']]['quantity']+ $arr['quantity'] : $arr['quantity'];
     }
@@ -315,7 +398,8 @@ function main_input($schema) {
 
         if( ($arr_final == '1.3'
             OR $arr_final == '2.7'
-            OR $arr_final == '4.7')
+            OR $arr_final == '4.7'
+            OR $arr_final == '1.1')
             // AND veneering_grants($values['region'])
         ) {
             $final[$arr_final]['region'] = array_values(array_unique(explode(',', $final[$arr_final]['region'])));
@@ -676,6 +760,41 @@ function atleastOneInPostRegion($schema) {
     if(count($in_posterior) > 0 )
     {
         array_push($teeth_region_eveluate, 'atleastOneInPostRegion');
+        return TRUE;
+    }
+    else {
+        return FALSE;
+    }
+}
+
+function inAnteriorRegion($schema) {
+    /*"""
+    Represent the anterior region (X3-X3) of the mouth.
+    """*/
+    global $teeth_region_eveluate, $teeth_with_status, $TOOTH_NUMBERS_ISO;
+    $TOOTH_NUMBERS_ISO_UPPER = array_slice($TOOTH_NUMBERS_ISO,0,16);
+    $TOOTH_NUMBERS_ISO_LOWER = array_slice($TOOTH_NUMBERS_ISO,16,32);
+
+    $in_anterior = [];
+    $upper_count = count(array_intersect($TOOTH_NUMBERS_ISO_UPPER, $teeth_with_status));
+    $lower_count = count(array_intersect($TOOTH_NUMBERS_ISO_LOWER, $teeth_with_status));
+
+    foreach($schema as $tooth_number => $status) {
+        // var_dump($tooth_number);
+        // var_dump($status);
+
+        if( in_array($tooth_number, [13,12,11,21,22,23,33,32,31,41,42,43])
+            AND (to_be_treated($status) OR $status == 'pw' 
+                OR to_be_replaced(get_condition($tooth_number, $schema), $tooth_number, $schema)
+                )
+        ) {
+            array_push($in_anterior, $tooth_number);
+        }
+    }
+
+    if(count($in_anterior) == $upper_count OR count($in_anterior) == $lower_count )
+    {
+        array_push($teeth_region_eveluate, 'inAnteriorRegion');
         return TRUE;
     }
     else {
@@ -1763,8 +1882,9 @@ function Exact2_3ToBeReplacedTeethInterdentalGapInFrontRegion($schema) {
 
     
     if(count($to_be_replaced_count) == 4 AND !subsidy_exists('3.1')) {
-        if( in_array('atleastOneInPostRegion', $teeth_region_eveluate) )
-        {
+        if( in_array('atleastOneInPostRegion', $teeth_region_eveluate) 
+            AND !in_array('inAnteriorRegion', $teeth_region_eveluate)
+        ) {
             array_push($teeth_subsidy_eveluate,
                 ["subsidy"=> "3.1", "output_order"=> "7", "region"=> get_jaw($to_be_replaced_count[0]), "quantity"=> "1", "applied_rule"=> "BiggestInterdentalGapExactToBeReplaced--4"]
             );
@@ -1855,7 +1975,7 @@ function Exact2_3ToBeReplacedTeethInterdentalGapInFrontRegion($schema) {
 }
 
 function Exact1ToBeReplacedTeethInterdentalGapInFrontRegion($schema) {
-    global $teeth_subsidy_eveluate, $teeth_with_status, $TOOTH_NUMBERS_ISO, $is_gap_closure_arr;
+    global $teeth_subsidy_eveluate, $teeth_with_status, $TOOTH_NUMBERS_ISO, $is_gap_closure, $is_gap_closure_arr;
     $to_be_replaced_count = [];
     $fs = [];
 
@@ -1948,34 +2068,41 @@ function Exact1ToBeReplacedTeethInterdentalGapInFrontRegion($schema) {
                         $pos_sch        = position_schema($key) - 1;
                         $pos_sch_right  = position_schema($key) + 1;
                     }
-
-                    //check for gap closure
-                    if(in_array($TOOTH_NUMBERS_ISO[position_schema($key) + 1], $is_gap_closure_arr))
-                    {
-                        $pos_sch_right = position_schema($key) + 2;
-                    }
-
-                    // var_dump($TOOTH_NUMBERS_ISO[position_schema($key)]);
-
-                    if(in_array($TOOTH_NUMBERS_ISO[position_schema($key)], $is_gap_closure_arr))
-                    {
-                        $pos_sch_right  = position_schema($key) + 2;
-
-                        // var_dump($pos_sch_right);
-                    }
-
-                    $is_greater = 0;
-                    for($bigger=0; $bigger<count($is_gap_closure_arr); $bigger++) {
-                        // TO fix. another loop required for $teeth_with_status[$zz]
-                        if(position_schema($key) > position_schema($is_gap_closure_arr[$bigger]))
-                        {
-                            $is_greater += 1;
+                    
+                    if($is_gap_closure == 'Y') {
+                        // var_dump(checkConsec($teeth_with_status));
+                        if(checkConsec($teeth_with_status)) {
+                            // var_dump($is_gap_closure_arr);
+                            // var_dump(($teeth_with_status));
+                            $right_count = 0;
+                            $left_count = 0;
+                            for($rc=0; $rc<count($is_gap_closure_arr); $rc++) {
+                                // var_dump($is_gap_closure_arr[$rc]);
+                                // var_dump(end($teeth_with_status));
+                                if($is_gap_closure_arr[$rc] < end($teeth_with_status)) {
+                                    $left_count += 1;
+                                }
+                                if($is_gap_closure_arr[$rc] >= end($teeth_with_status)) {
+                                    $right_count += 1;
+                                }
+                            }
+                            $pos_sch += $left_count;
+                            $pos_sch_right += $right_count;
+                            // $pos_sch_right += count($is_gap_closure_arr);
                         }
                     }
 
-                    // $pos_sch        = $pos_sch + $is_greater;
-                    $pos_sch_right  = $pos_sch_right + $is_greater;
+                    $is_greater = 0;
+                    // for($bigger=0; $bigger<count($is_gap_closure_arr); $bigger++) {
+                    //     // TO fix. another loop required for $teeth_with_status[$zz]
+                    //     if(position_schema($key) > position_schema($is_gap_closure_arr[$bigger]))
+                    //     {
+                    //         $is_greater += 1;
+                    //     }
+                    // }
 
+                    // $pos_sch_right  = $pos_sch_right + $is_greater;
+                    
                     array_push($teeth_subsidy_eveluate, 
                         ["subsidy"=> "2.1", "output_order"=> "13", "region"=> $TOOTH_NUMBERS_ISO[$pos_sch] .'-'. $TOOTH_NUMBERS_ISO[$pos_sch_right], "quantity"=> "1", "applied_rule"=> "BiggestInterdentalGapExactToBeReplaced-1"]
                     );
@@ -2004,6 +2131,21 @@ function Exact1ToBeReplacedTeethInterdentalGapInFrontRegion($schema) {
         }
     }
     // insert into subsidy array outside the array
+}
+
+function checkConsec($d) {
+    for($i=0;$i<count($d);$i++) {
+        $d[$i] = position_schema($d[$i]);
+    }
+    for($i=0;$i<count($d);$i++) {
+        if(isset($d[$i+1]) && 
+            ($d[$i]+1) != ($d[$i+1])
+        ) {
+            // var_dump(position_schema($d[$i+1]));
+            return false;
+        }
+    }
+    return true;
 }
 
 /** 1.x start **/
@@ -2070,7 +2212,7 @@ function StatusPwInFrontRegion($schema) {
 }
 
 function ToBeTreatedWithNoAbutmentTeethIncluded($schema) {
-    global $teeth_subsidy_eveluate, $teeth_inter_dental_gaps, $TOOTH_NUMBERS_ISO;
+    global $teeth_with_status, $teeth_subsidy_eveluate, $teeth_inter_dental_gaps, $TOOTH_NUMBERS_ISO, $is_gap_closure_arr, $is_gap_closure;
 
     $teeth_included = [];
     $get_jaw = '';
@@ -2138,12 +2280,27 @@ function ToBeTreatedWithNoAbutmentTeethIncluded($schema) {
                 {
                     // return FALSE;
                 }
+                $pos_sch = position_schema($tooth);
+
+                if($is_gap_closure == 'Y') {
+                    $right_count = 0;
+                    $left_count = 0;
+                    for($rc=0; $rc<count($is_gap_closure_arr); $rc++) {
+                        // var_dump($is_gap_closure_arr[$rc]);
+                        // var_dump(end($teeth_with_status));
+                        if($is_gap_closure_arr[$rc] < end($teeth_with_status)) {
+                            $left_count += 1;
+                        }                            
+                    }
+                    $pos_sch += $left_count;
+                }
+
                 array_push($teeth_subsidy_eveluate, 
-                    ["subsidy"=> "1.1", "output_order"=> "16", "region"=> $tooth, "quantity"=> "1", "applied_rule"=> "ToBeTreatedWithNoAbutmentTeethIncluded"]
+                    ["subsidy"=> "1.1", "output_order"=> "16", "region"=> $TOOTH_NUMBERS_ISO[$pos_sch], "quantity"=> "1", "applied_rule"=> "ToBeTreatedWithNoAbutmentTeethIncluded"]
                 );
-                if( veneering_grants($tooth) ){
+                if( veneering_grants($TOOTH_NUMBERS_ISO[$pos_sch]) ){
                     array_push($teeth_subsidy_eveluate, 
-                        ["subsidy"=> "1.3", "output_order"=> "17", "region"=> $tooth, "quantity"=> "1", "applied_rule"=> "veneering_grants 14"]
+                        ["subsidy"=> "1.3", "output_order"=> "17", "region"=> $TOOTH_NUMBERS_ISO[$pos_sch], "quantity"=> "1", "applied_rule"=> "veneering_grants 14"]
                     );
                 }
             }
@@ -2159,12 +2316,26 @@ function ToBeTreatedWithNoAbutmentTeethIncluded($schema) {
                 {
                     // return FALSE;
                 }
+                $pos_sch = position_schema($tooth);
+
+                if($is_gap_closure == 'Y') {
+                    $right_count = 0;
+                    $left_count = 0;
+                    for($rc=0; $rc<count($is_gap_closure_arr); $rc++) {
+                        // var_dump($is_gap_closure_arr[$rc]);
+                        // var_dump(end($teeth_with_status));
+                        if($is_gap_closure_arr[$rc] < end($teeth_with_status)) {
+                            $left_count += 1;
+                        }                            
+                    }
+                    $pos_sch += $left_count;
+                }
                 array_push($teeth_subsidy_eveluate, 
-                    ["subsidy"=> "1.1", "output_order"=> "16", "region"=> $tooth, "quantity"=> "1", "applied_rule"=> "ToBeTreatedWithNoAbutmentTeethIncluded"]
+                    ["subsidy"=> "1.1", "output_order"=> "16", "region"=> $TOOTH_NUMBERS_ISO[$pos_sch], "quantity"=> "1", "applied_rule"=> "ToBeTreatedWithNoAbutmentTeethIncluded"]
                 );
-                if( veneering_grants($tooth) ){
+                if( veneering_grants($TOOTH_NUMBERS_ISO[$pos_sch]) ){
                     array_push($teeth_subsidy_eveluate, 
-                        ["subsidy"=> "1.3", "output_order"=> "17", "region"=> $tooth, "quantity"=> "1", "applied_rule"=> "veneering_grants 15"]
+                        ["subsidy"=> "1.3", "output_order"=> "17", "region"=> $TOOTH_NUMBERS_ISO[$pos_sch], "quantity"=> "1", "applied_rule"=> "veneering_grants 15"]
                     );
                 }
             }
